@@ -50,4 +50,4 @@ def test_resumable():
 
 
 if __name__ == '__main__':
-    run(app, host='localhost', port=8000, server='gevent')
+    run(app, reloader=True, host='localhost', port=8000, server='gevent')
