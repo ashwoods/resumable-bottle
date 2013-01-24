@@ -1,0 +1,12 @@
+*~
+*.pyc
+*.swp
+.idea
+build
+dist
+develop
+*.egg
+*.jar
+*.egg-info
+.vagrant
+.coverage

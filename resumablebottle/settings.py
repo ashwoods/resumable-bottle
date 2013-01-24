@@ -1,0 +1,9 @@
+
+
+
+
+CHUNK_PATH = ''
+CHUNK_STORAGE = ''
+
+UPLOAD_PATH = '/tmp'
+UPLOAD_STORAGE = storage
