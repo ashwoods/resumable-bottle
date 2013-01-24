@@ -20,4 +20,7 @@ Usage
 
 For now nothing happens after the upload has been finished.
 Will be implementing configurable callbacks *soon*.
-  
+::
+  workon resumable
+  python resumable.py
+
