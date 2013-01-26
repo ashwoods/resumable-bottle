@@ -19,58 +19,56 @@ TD{font-family: Arial, Helvetica, sans-serif; font-size: 8pt;}
 </style>
 </head>
 
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+<!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>-->
 <!--<script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>-->
 <script type="text/javascript" src="js/modernizr.full.min.js" charset="utf-8"></script>
 
 <script>
-    if ( ! window.jQuery ) {
-        Modernizr.load('js/jquery.min.js');
-//console.log('j');
+    var globals = {
+        //uploader : null, // the plugin ( name string ) which will be used for uploads
+        scripts : null
+    };
+
+    var setDeferred = function() {
+        if( window.jQuery ) {
+            globals.scripts = new $.Deferred();
+        }
+    };
+    var setErrorLog = function() {
+        if( window.jQuery ) {
+            $(window).error( function( msg, url, line ) {
+                console.log( msg );
+                console.log( url );
+                console.log( line );
+                //jQuery.post("/js_error_log", { msg: msg, url: url, line: line });
+            });
+        }
     }
 
-    var globals = {
-        uploader : null // the plugin ( name string ) which will be used for uploads
-    },
-    scripts = new $.Deferred();
+    // setting the timeOut for fileloading
+    // a file appears to not be loadable anymore, essential files should be loaded from a different source
+    yepnope.errorTimeout = 2000;
 
     Modernizr.load([
         {
-            //test: Modernizr.fileapi && Modernizr.draganddrop && Modernizr.fileapislice && Modernizr.input.multiple,
-            test: Modernizr.draganddrop && FileReader && ( 'files' in DataTransfer.prototype ),
-            yep : ['js/resumable.js','js/spark-md5.min.js','js/plugin.js'],
-            //yep : ['https://raw.github.com/23/resumable.js/master/resumable.js','https://raw.github.com/satazor/SparkMD5/master/spark-md5.min.js','js/plugin.js'],
-            callback: function( url, result, key ) {
-                // callback method gets called after every ( yep, nope ) action!
-                globals.uploader = 'resumable';
-            },
-            complete : function() {
-                // "complete" callback will be executed after all tests
-                if( globals.uploader ) {
-                    // initializing the main upload plugin
-
-                    $('#loading_area').css('background-image', 'none');
-                    //$('#drop_zone').css({'visibility':'visible'}).creativeUpload();
-                    $('#drop_zone').css({'visibility':'visible'}).uploadGuard();
+            load : 'http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js',
+            complete : function () { // "complete" callback will be executed after the file downloading is completed
+                if( ! window.jQuery ) {
+                    Modernizr.load([{
+                        load : 'js/jquery.min.js',
+                        complete : function () {
+                            setDeferred();
+                        }
+                    }]);
                 }
+                setDeferred();
+//console.log(globals.scripts);
             }
-        }/*,
+        },
         {
-            test: ! Modernizr.draganddrop && ! FileReader && ! ( 'files' in DataTransfer.prototype ),
-            yep : [''],
-            callback: function( url, result, key ) {
-                // callback method gets called after every ( yep, nope ) action!
-                globals.uploader = 'plupload';
-            },
-            complete : function() {
-                // "complete" callback will be executed after all tests
-                if( globals.uploader ) {
-                    // initializing the main upload plugin
-                }
-            }
-        }*/
+            load : 'js/plugin.js'
+        }
     ]);
-
 </script>
 
 <body>
