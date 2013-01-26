@@ -9,7 +9,7 @@
 TD{font-family: Arial, Helvetica, sans-serif; font-size: 8pt;}
 
 #loading_area {
-    background: url('http://www.webscriptlab.com/file/loading/33.gif') no-repeat center;
+    background: url('img/waiting.gif') no-repeat center;
 }
 #loading_area #drop_zone {
     visibility: hidden;
@@ -24,6 +24,11 @@ TD{font-family: Arial, Helvetica, sans-serif; font-size: 8pt;}
 <script type="text/javascript" src="js/modernizr.full.min.js" charset="utf-8"></script>
 
 <script>
+    if ( ! window.jQuery ) {
+        Modernizr.load('js/jquery.min.js');
+//console.log('j');
+    }
+
     var globals = {
         uploader : null // the plugin ( name string ) which will be used for uploads
     },
@@ -33,7 +38,8 @@ TD{font-family: Arial, Helvetica, sans-serif; font-size: 8pt;}
         {
             //test: Modernizr.fileapi && Modernizr.draganddrop && Modernizr.fileapislice && Modernizr.input.multiple,
             test: Modernizr.draganddrop && FileReader && ( 'files' in DataTransfer.prototype ),
-            yep : ['https://raw.github.com/23/resumable.js/master/resumable.js','https://raw.github.com/satazor/SparkMD5/master/spark-md5.min.js','js/plugin.js'],
+            yep : ['js/resumable.js','js/spark-md5.min.js','js/plugin.js'],
+            //yep : ['https://raw.github.com/23/resumable.js/master/resumable.js','https://raw.github.com/satazor/SparkMD5/master/spark-md5.min.js','js/plugin.js'],
             callback: function( url, result, key ) {
                 // callback method gets called after every ( yep, nope ) action!
                 globals.uploader = 'resumable';

@@ -46,6 +46,9 @@ def process_file(resumable_file):
 def static(path):
     return static_file(path, root='js')
 
+@app.route('/img/:path#.+#', name='img')
+def static(path):
+    return static_file(path, root='img')
 
 @app.route('/test')
 def test_resumable():
