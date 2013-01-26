@@ -1,8 +1,7 @@
 from gevent import monkey; monkey.patch_all()
 
-from bottle import Bottle, run, template, response, get, post, request, route, debug
+from bottle import Bottle, run, template, response, get, post, request, route, debug, static_file
 from file import ResumableFile
-
 
 app = Bottle()
 
@@ -43,11 +42,14 @@ def process_file(resumable_file):
 
 
 
+@app.route('/js/:path#.+#', name='js')
+def static(path):
+    return static_file(path, root='js')
+
 
 @app.route('/test')
 def test_resumable():
     return template('example')
 
-
 if __name__ == '__main__':
-    run(app, reloader=True, host='localhost', port=8000, server='gevent')
+    run(app, debug=True, reloader=True, host='localhost', port=8000, server='gevent')

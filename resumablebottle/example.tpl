@@ -2,7 +2,7 @@
 
 <html class="no-js">
 <head>
-<title>HTML5 File example</title>
+<title>uploadGuard</title>
 
 <style type="text/css">
 <!--
@@ -12,7 +12,6 @@ TD{font-family: Arial, Helvetica, sans-serif; font-size: 8pt;}
     background: url('http://www.webscriptlab.com/file/loading/33.gif') no-repeat center;
 }
 #loading_area #drop_zone {
-    /*display: none;*/
     visibility: hidden;
 }
 --->
@@ -20,17 +19,21 @@ TD{font-family: Arial, Helvetica, sans-serif; font-size: 8pt;}
 </style>
 </head>
 
-<script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+<!--<script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>-->
+<script type="text/javascript" src="js/modernizr.full.min.js" charset="utf-8"></script>
+
 <script>
     var globals = {
         uploader : null // the plugin ( name string ) which will be used for uploads
-    };
+    },
+    scripts = new $.Deferred();
 
     Modernizr.load([
         {
             //test: Modernizr.fileapi && Modernizr.draganddrop && Modernizr.fileapislice && Modernizr.input.multiple,
             test: Modernizr.draganddrop && FileReader && ( 'files' in DataTransfer.prototype ),
-            yep : ['http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js','https://raw.github.com/23/resumable.js/master/resumable.js','https://raw.github.com/satazor/SparkMD5/master/spark-md5.min.js','http://cs.soluch.at/creativeUpload.js'],
+            yep : ['https://raw.github.com/23/resumable.js/master/resumable.js','https://raw.github.com/satazor/SparkMD5/master/spark-md5.min.js','js/plugin.js'],
             callback: function( url, result, key ) {
                 // callback method gets called after every ( yep, nope ) action!
                 globals.uploader = 'resumable';
@@ -41,13 +44,14 @@ TD{font-family: Arial, Helvetica, sans-serif; font-size: 8pt;}
                     // initializing the main upload plugin
 
                     $('#loading_area').css('background-image', 'none');
-                    $('#drop_zone').css({'visibility':'visible'}).creativeUpload();
+                    //$('#drop_zone').css({'visibility':'visible'}).creativeUpload();
+                    $('#drop_zone').css({'visibility':'visible'}).uploadGuard();
                 }
             }
-        },
+        }/*,
         {
             test: ! Modernizr.draganddrop && ! FileReader && ! ( 'files' in DataTransfer.prototype ),
-            yep : ['http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js','https://raw.github.com/23/resumable.js/master/resumable.js','https://raw.github.com/satazor/SparkMD5/master/spark-md5.min.js'],
+            yep : [''],
             callback: function( url, result, key ) {
                 // callback method gets called after every ( yep, nope ) action!
                 globals.uploader = 'plupload';
@@ -58,7 +62,7 @@ TD{font-family: Arial, Helvetica, sans-serif; font-size: 8pt;}
                     // initializing the main upload plugin
                 }
             }
-        }
+        }*/
     ]);
 
 </script>
