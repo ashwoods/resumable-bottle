@@ -4,12 +4,20 @@
 <head>
 <title>HTML5 File example</title>
 
-<STYLE TYPE="text/css">
+<style type="text/css">
 <!--
 TD{font-family: Arial, Helvetica, sans-serif; font-size: 8pt;}
+
+#loading_area {
+    background: url('http://www.webscriptlab.com/file/loading/33.gif') no-repeat center;
+}
+#loading_area #drop_zone {
+    /*display: none;*/
+    visibility: hidden;
+}
 --->
-</STYLE>
-<style>.example{padding:10px;border:1px solid #ccc}#drop_zone{border:2px dashed #bbb;-moz-border-radius:5px;-webkit-border-radius:5px;border-radius:5px;padding:25px;text-align:center;font:20pt bold,"Vollkorn";color:#bbb}.thumb{height:75px;border:1px solid #000;margin:10px 5px 0 0}#progress_bar{margin:10px 0;padding:3px;border:1px solid #000;font-size:14px;clear:both;opacity:0;-o-transition:opacity 1s linear;-moz-transition:opacity 1s linear;-webkit-transition:opacity 1s linear;-ms-transition:opacity 1s linear}#progress_bar.loading{opacity:1}#progress_bar .percent{background-color:#9cf;height:auto;width:0}#byte_content{margin:5px 0;max-height:100px;overflow-y:auto;overflow-x:hidden}#byte_range{margin-top:5px}</style>
+.example{padding:10px;border:1px solid #ccc}#drop_zone{border:2px dashed #bbb;-moz-border-radius:5px;-webkit-border-radius:5px;border-radius:5px;padding:25px;text-align:center;font:20pt bold,"Vollkorn";color:#bbb}.thumb{height:75px;border:1px solid #000;margin:10px 5px 0 0}#progress_bar{margin:10px 0;padding:3px;border:1px solid #000;font-size:14px;clear:both;opacity:0;-o-transition:opacity 1s linear;-moz-transition:opacity 1s linear;-webkit-transition:opacity 1s linear;-ms-transition:opacity 1s linear}#progress_bar.loading{opacity:1}#progress_bar .percent{background-color:#9cf;height:auto;width:0}#byte_content{margin:5px 0;max-height:100px;overflow-y:auto;overflow-x:hidden}#byte_range{margin-top:5px}
+</style>
 </head>
 
 <script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
@@ -31,7 +39,9 @@ TD{font-family: Arial, Helvetica, sans-serif; font-size: 8pt;}
                 // "complete" callback will be executed after all tests
                 if( globals.uploader ) {
                     // initializing the main upload plugin
-                    $('#drop-zone').creativeUpload();
+
+                    $('#loading_area').css('background-image', 'none');
+                    $('#drop_zone').css({'visibility':'visible'}).creativeUpload();
                 }
             }
         },
@@ -54,8 +64,11 @@ TD{font-family: Arial, Helvetica, sans-serif; font-size: 8pt;}
 </script>
 
 <body>
-    <div id="drop_zone">Drop files here or <a href="#" id="browsebutton">click
-            to open file browser</a></div>
+    <div id="loading_area">
+        <div id="drop_zone">
+            Drop files here or <a href="#" id="browsebutton">click to open file browser</a>
+        </div>
+    </div>
 <output id="list"></output>
 
 <!--script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script-->
