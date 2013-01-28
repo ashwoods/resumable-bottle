@@ -1,9 +1,11 @@
 Modernizr.load([
     {
-        //test: Modernizr.fileapi && Modernizr.draganddrop && Modernizr.fileapislice && Modernizr.input.multiple,
-        test: Modernizr.draganddrop && FileReader, // && ( 'files' in DataTransfer.prototype ),  // Chrome : Uncaught ReferenceError: DataTransfer is not defined 
+        test: Modernizr.draganddrop 
+            && typeof(File)!=='undefined' 
+            && (typeof(Blob)!=='undefined') 
+            && (typeof(FileList)!=='undefined') 
+            && (!!Blob.prototype.webkitSlice||!!Blob.prototype.mozSlice||Blob.prototype.slice||false),
         yep : ['js/resumable.js','js/spark-md5.min.js'],
-        //yep : ['https://raw.github.com/23/resumable.js/master/resumable.js','https://raw.github.com/satazor/SparkMD5/master/spark-md5.min.js','js/plugin.js'],
         callback: function( url, result, key ) {
             // callback method gets called after every ( yep & nope ) action!
             globals.uploader = 'resumable';
@@ -13,7 +15,7 @@ Modernizr.load([
             if( globals.uploader ) {
                 // initializing the main upload plugin
                 $('#loading_area').css('background-image', 'none');
-                $('#drop_zone').css({'visibility':'visible'}).uploadGuard();
+                $('[data-upload]').css({'visibility':'visible'}).uploadGuard({'uploader':globals.uploader});
             }
         }
     }/*,
@@ -33,23 +35,15 @@ Modernizr.load([
     }*/
 ]);
 
-/*
-Modernizr.load([
-    {
-        load : 'http://cdnjs.cloudflare.com/ajax/libs/backbone.js/0.9.10/backbone-min.js',
-        complete : function () { // "complete" callback will be executed after the file downloading is completed
-        }
-    }
-]);
-*/
-
 /**
  *  the main upload scripts handler plugin
  * */
 ;(function ($, window, document, undefined) {
     var pluginName = "uploadGuard";
+    var uploadPlugin = {};
     var defaults = {
-        uploader: null
+        uploader: null,
+        url: null
     };
 
     function Plugin(element, options) {
@@ -62,21 +56,61 @@ Modernizr.load([
 
     Plugin.prototype = {
         init: function () {
-            switch( globals.uploader ) {
+            this.options.url = $(this.element).data('upload');
+            switch( this.options.uploader ) {
                 case 'resumable' :
-                    //console.log(globals.uploader);
-                    this.resumableJs();
+                    this.resumableJs.init( this );
                 break;
                 default:
                 break;
             }
         },
-        resumableJs: function () {
-            var r = new Resumable({
-                target:'/upload',
-            });
-            r.assignDrop( document.getElementById('drop_zone') );
-            console.log(r);
+        resumableJs : {
+            init : function( that ) {
+                uploadPlugin.resumableJs = this;
+                var r = new Resumable({
+                    target: that.options.url
+                });
+                r.assignDrop( $(that.element) );
+                //console.log(r);
+                r.on('fileAdded', function(file){
+                    uploadPlugin.resumableJs.loadNext(file);
+                    r.upload();
+                });
+            },
+            loadNext : function(file) {
+                //console.log(file);
+                chunkSize = 2097152,                               // read in chunks of 2MB
+                chunks = Math.ceil(file.size / chunkSize),
+                currentChunk = 0,
+                spark = new SparkMD5.ArrayBuffer(),
+                fileReader = new FileReader();
+                //console.log(FileReader);
+                fileReader.onload = uploadPlugin.resumableJs.frOnload;
+                fileReader.onerror = uploadPlugin.resumableJs.frOnerror;
+                var start = currentChunk * chunkSize,
+                   end = ((start + chunkSize) >= file.size) ? file.size : start + chunkSize;
+                //console.log(start);
+                //console.log(end);
+                var blob = file.file.slice(start, end);
+                console.log(blob);
+                fileReader.readAsArrayBuffer(blob);
+            },
+            frOnload : function(e) {
+                console.log("read chunk nr", currentChunk + 1, "of", chunks);
+                spark.append(e.target.result);                 // append array buffer
+                currentChunk++;
+                if (currentChunk < chunks) {
+                    uploadPlugin.resumableJs.loadNext(file);
+                }
+                else {
+                    console.log("finished loading");
+                    console.info("computed hash", spark.end()); // compute hash
+                }
+            },
+            frOnerror : function () {
+                console.warn('oops, something went wrong.');
+            }
         }
     };
 
