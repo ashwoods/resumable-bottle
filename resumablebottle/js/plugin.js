@@ -42,7 +42,6 @@ Modernizr.load([
     var pluginName = "uploadGuard";
     var uploadPlugin = {};
     var defaults = {
-        uploader: null,
         url: null
     };
 
@@ -67,6 +66,8 @@ Modernizr.load([
         },
         resumableJs : {
             init : function( that ) {
+                //this.that = that; // plugin scope
+                //console.log( this.that.options.file );
                 uploadPlugin.resumableJs = this;
                 var r = new Resumable({
                     target: that.options.url
@@ -74,34 +75,36 @@ Modernizr.load([
                 r.assignDrop( $(that.element) );
                 //console.log(r);
                 r.on('fileAdded', function(file){
+                    theFile = file;
+                    chunkSize = 2097152,                               // read in chunks of 2MB
+                    chunksAll = Math.ceil(theFile.size / chunkSize),
+                    chunks = Math.ceil(theFile.size / chunkSize),
+                    currentChunk = 0,
+
+                spark = new SparkMD5.ArrayBuffer(),
                     uploadPlugin.resumableJs.loadNext(file);
                     r.upload();
                 });
             },
             loadNext : function(file) {
-                //console.log(file);
-                chunkSize = 2097152,                               // read in chunks of 2MB
-                chunks = Math.ceil(file.size / chunkSize),
-                currentChunk = 0,
-                spark = new SparkMD5.ArrayBuffer(),
                 fileReader = new FileReader();
-                //console.log(FileReader);
                 fileReader.onload = uploadPlugin.resumableJs.frOnload;
                 fileReader.onerror = uploadPlugin.resumableJs.frOnerror;
                 var start = currentChunk * chunkSize,
-                   end = ((start + chunkSize) >= file.size) ? file.size : start + chunkSize;
-                //console.log(start);
-                //console.log(end);
-                var blob = file.file.slice(start, end);
-                console.log(blob);
+                   end = ((start + chunkSize) >= theFile.size) ? theFile.size : start + chunkSize;
+                console.log(start);
+                console.log(end);
+                var blob = theFile.file.slice(start, end);
                 fileReader.readAsArrayBuffer(blob);
             },
             frOnload : function(e) {
                 console.log("read chunk nr", currentChunk + 1, "of", chunks);
+                //console.log(e.target.result);
+                //throw "stop execution";
                 spark.append(e.target.result);                 // append array buffer
                 currentChunk++;
                 if (currentChunk < chunks) {
-                    uploadPlugin.resumableJs.loadNext(file);
+                    uploadPlugin.resumableJs.loadNext( this.theFile );
                 }
                 else {
                     console.log("finished loading");
