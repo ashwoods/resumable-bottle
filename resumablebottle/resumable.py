@@ -2,6 +2,7 @@ from gevent import monkey; monkey.patch_all()
 
 from bottle import Bottle, run, template, response, get, post, request, route, debug, static_file
 from file import ResumableFile
+from json import dumps
 
 app = Bottle()
 
@@ -40,7 +41,10 @@ def process_chunk():
 def process_file(resumable_file):
     print resumable_file.url
 
-
+@app.post('/check')
+def index():
+    response.content_type = 'application/json'
+    return request.body
 
 @app.route('/js/:path#.+#', name='js')
 def static(path):

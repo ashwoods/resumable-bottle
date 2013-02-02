@@ -4,6 +4,8 @@ var uploadPlugin = {
     }
 };
 
+
+
 // Browser compatibility test suites
 var testForFileAPI = ( Modernizr.draganddrop
                         && ( typeof( File )!=='undefined' ) 
@@ -11,12 +13,11 @@ var testForFileAPI = ( Modernizr.draganddrop
                         && ( typeof( FileList )!=='undefined' ) 
                         && ( !!Blob.prototype.webkitSlice || !!Blob.prototype.mozSlice || !!Blob.prototype.slice || false )
                     ) ? true : false;
-var testForFileReader = ( 
-                            ( typeof( FileReader ) !== 'undefined' ) 
-                            && testForFileAPI
-                        );
+var testForFileReader = ( ( typeof( FileReader ) !== 'undefined' ) && testForFileAPI );
 // resumable.js standalone does not need the FileReader interface
 var testForResumableJs = ( ( typeof( FileReader ) === 'undefined' ) && testForFileAPI );
+
+
 
 Modernizr.load([
     {
@@ -31,7 +32,12 @@ Modernizr.load([
         complete : function() {
             if( uploadPlugin.globals.uploader === 'FileReader' ) {
                 $('#loading_area').css('background-image', 'none');
-                $('[data-upload]').css({'visibility':'visible'}).uploadGuard({'uploader':uploadPlugin.globals.uploader});
+                $('[data-upload]')
+                    .css({'visibility':'visible'})
+                    .uploadGuard({
+                        'uploader':uploadPlugin.globals.uploader,
+                        'checkFileOnServerPath':'/check'
+                    });
             }
         }
     },
@@ -69,6 +75,8 @@ Modernizr.load([
     }
 ]);
 
+
+
 /**
  *  the main upload scripts handler plugin
  * */
@@ -76,7 +84,8 @@ Modernizr.load([
     var pluginName = "uploadGuard";
     var uploadPlugin = {};
     var defaults = {
-        url: null
+        url: null,
+        checkFileOnServerPath: null
     };
 
     function Plugin(element, options) {
@@ -102,17 +111,37 @@ Modernizr.load([
                 break;
             }
         },
+        checkForFileExistence : function( fileData ) {
+//console.log( fileData );
+//console.log( this.options.checkFileOnServerPath );
+            $.ajax({
+                type: "POST",
+                url: this.options.checkFileOnServerPath,
+                data: fileData,
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (msg) {
+                    console.log( msg );
+                },
+            });
+        },
         resumableJs : {
             init : function( that ) {
-                //console.log( uploadPlugin );
+                //console.log( that.options.checkFileOnServer );
                 uploadPlugin.resumableJs = this;
                 var r = new Resumable({
                     target: that.options.url
                 });
                 r.assignDrop( $(that.element) );
-                r.on('fileAdded', function(file){
+                r.on('fileAdded', function(file) {
 
-                    if( that.options.uploader === 'FileReader' ) {
+                    if( that.options.checkFileOnServerPath ) {
+                        //console.log( that.options.checkFileOnServerPath );
+                        var fileMD5 = uploadPlugin.resumableJs.generateMD5( file );
+                        that.checkForFileExistence( {'name':file.fileName, 'size':file.size, 'md5':fileMD5} );
+                    }
+                    //console.log( a );
+/*                    if( that.options.uploader === 'FileReader' ) {
                         theFile = file;
                         chunkSize = 2097152,                               // read in chunks of 2MB
                         chunksAll = Math.ceil(theFile.size / chunkSize),
@@ -125,10 +154,17 @@ Modernizr.load([
                     else {
                         // standard resumable upload
                         r.upload();
-                    }
+                    }*/
                 });
             },
-            loadNext : function(file) {
+            generateMD5 : function( file ) {
+                var spark = new SparkMD5();
+                spark.append( file.fileName );
+                spark.append( file.size );
+                spark.append( file.uniqueIdentifier );
+                return spark.end();
+            },
+            loadNext : function( file ) {
                 fileReader = new FileReader();
                 fileReader.onload = uploadPlugin.resumableJs.frOnload;
                 fileReader.onerror = uploadPlugin.resumableJs.frOnerror;

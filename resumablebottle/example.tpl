@@ -66,7 +66,7 @@ TD{font-family: Arial, Helvetica, sans-serif; font-size: 8pt;}
             }
         },
         {
-            load : 'js/plugin.js'
+            load : 'js/uploadGuard.js'
         }
     ]);
 </script>
