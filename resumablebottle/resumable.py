@@ -44,7 +44,9 @@ def process_file(resumable_file):
 @app.post('/check')
 def index():
     response.content_type = 'application/json'
-    return request.body
+    #return request.body
+    ret = { "id": 1, "pass": '1' }
+    return dumps(ret)
 
 @app.route('/js/:path#.+#', name='js')
 def static(path):
