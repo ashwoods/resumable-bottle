@@ -55,4 +55,4 @@ def test_resumable():
     return template('example')
 
 if __name__ == '__main__':
-    run(app, debug=True, reloader=True, host='localhost', port=8000, server='gevent')
+    run(app, debug=True, reloader=True, host='0.0.0.0', port=8000, server='gevent')

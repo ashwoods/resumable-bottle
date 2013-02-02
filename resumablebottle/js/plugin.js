@@ -1,38 +1,72 @@
+var uploadPlugin = {
+    globals : {
+        uploader : false
+    }
+};
+
+// Browser compatibility test suites
+var testForFileAPI = ( Modernizr.draganddrop
+                        && ( typeof( File )!=='undefined' ) 
+                        && ( typeof( Blob )!=='undefined' ) 
+                        && ( typeof( FileList )!=='undefined' ) 
+                        && ( !!Blob.prototype.webkitSlice || !!Blob.prototype.mozSlice || !!Blob.prototype.slice || false )
+                    ) ? true : false;
+var testForFileReader = ( 
+                            ( typeof( FileReader ) !== 'undefined' ) 
+                            && testForFileAPI
+                        );
+// resumable.js standalone does not need the FileReader interface
+var testForResumableJs = ( ( typeof( FileReader ) === 'undefined' ) && testForFileAPI );
+
 Modernizr.load([
     {
-        test: Modernizr.draganddrop 
-            && typeof(File)!=='undefined' 
-            && (typeof(Blob)!=='undefined') 
-            && (typeof(FileList)!=='undefined') 
-            && (!!Blob.prototype.webkitSlice||!!Blob.prototype.mozSlice||Blob.prototype.slice||false),
+        test : testForFileReader,
         yep : ['js/resumable.js','js/spark-md5.min.js'],
         callback: function( url, result, key ) {
             // callback method gets called after every ( yep & nope ) action!
-            globals.uploader = 'resumable';
+            if( ! uploadPlugin.globals.uploader ) {
+                uploadPlugin.globals.uploader = 'FileReader'
+            }
+        },
+        complete : function() {
+            if( uploadPlugin.globals.uploader === 'FileReader' ) {
+                $('#loading_area').css('background-image', 'none');
+                $('[data-upload]').css({'visibility':'visible'}).uploadGuard({'uploader':uploadPlugin.globals.uploader});
+            }
+        }
+    },
+    {
+        test : testForResumableJs,
+        yep : ['js/resumable.js'],
+        callback: function( url, result, key ) {
+            // callback method gets called after every ( yep & nope ) action!
+            if( ! uploadPlugin.globals.uploader ) {
+                uploadPlugin.globals.uploader = 'resumableJs'
+            }
         },
         complete : function() {
             // "complete" callback will be executed after all tests done & file downloading completed
-            if( globals.uploader ) {
+            if( uploadPlugin.globals.uploader === 'resumableJs' ) {
                 // initializing the main upload plugin
                 $('#loading_area').css('background-image', 'none');
-                $('[data-upload]').css({'visibility':'visible'}).uploadGuard({'uploader':globals.uploader});
+                $('[data-upload]').css({'visibility':'visible'}).uploadGuard({'uploader':uploadPlugin.globals.uploader});
             }
         }
-    }/*,
+    },
     {
-        test: ! Modernizr.draganddrop && ! FileReader, // && ! ( 'files' in DataTransfer.prototype ),
+        test : ! testForResumableJs,
         yep : [''],
         callback: function( url, result, key ) {
             // callback method gets called after every ( yep, nope ) action!
-            globals.uploader = 'plupload';
+            if( ! uploadPlugin.globals.uploader ) {
+                uploadPlugin.globals.uploader = 'plupload'
+            }
         },
         complete : function() {
-            // "complete" callback will be executed after all tests
-            if( globals.uploader ) {
-                // initializing the main upload plugin
+            if( uploadPlugin.globals.uploader === 'plupload' ) {
             }
         }
-    }*/
+    }
 ]);
 
 /**
@@ -60,30 +94,38 @@ Modernizr.load([
                 case 'resumable' :
                     this.resumableJs.init( this );
                 break;
+                case 'FileReader' :
+                    this.resumableJs.init( this );
+                    //this.fileReader.init();
+                break;
                 default:
                 break;
             }
         },
         resumableJs : {
             init : function( that ) {
-                //this.that = that; // plugin scope
-                //console.log( this.that.options.file );
+                //console.log( uploadPlugin );
                 uploadPlugin.resumableJs = this;
                 var r = new Resumable({
                     target: that.options.url
                 });
                 r.assignDrop( $(that.element) );
-                //console.log(r);
                 r.on('fileAdded', function(file){
-                    theFile = file;
-                    chunkSize = 2097152,                               // read in chunks of 2MB
-                    chunksAll = Math.ceil(theFile.size / chunkSize),
-                    chunks = Math.ceil(theFile.size / chunkSize),
-                    currentChunk = 0,
 
-                spark = new SparkMD5.ArrayBuffer(),
-                    uploadPlugin.resumableJs.loadNext(file);
-                    r.upload();
+                    if( that.options.uploader === 'FileReader' ) {
+                        theFile = file;
+                        chunkSize = 2097152,                               // read in chunks of 2MB
+                        chunksAll = Math.ceil(theFile.size / chunkSize),
+                        chunks = Math.ceil(theFile.size / chunkSize),
+                        currentChunk = 0,
+
+                        spark = new SparkMD5.ArrayBuffer(),
+                        uploadPlugin.resumableJs.loadNext(file);
+                    }
+                    else {
+                        // standard resumable upload
+                        r.upload();
+                    }
                 });
             },
             loadNext : function(file) {

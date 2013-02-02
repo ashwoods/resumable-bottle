@@ -24,7 +24,7 @@ TD{font-family: Arial, Helvetica, sans-serif; font-size: 8pt;}
 <script type="text/javascript" src="js/modernizr.full.min.js" charset="utf-8"></script>
 
 <script>
-    var globals = {
+    /*var globals = {
         //uploader : null, // the plugin ( name string ) which will be used for uploads
         scripts : null
     };
@@ -33,7 +33,7 @@ TD{font-family: Arial, Helvetica, sans-serif; font-size: 8pt;}
         if( window.jQuery ) {
             globals.scripts = new $.Deferred();
         }
-    };
+    };*/
     var setErrorLog = function() {
         if( window.jQuery ) {
             $(window).error( function( msg, url, line ) {
@@ -57,11 +57,11 @@ TD{font-family: Arial, Helvetica, sans-serif; font-size: 8pt;}
                     Modernizr.load([{
                         load : 'js/jquery.min.js',
                         complete : function () {
-                            setDeferred();
+                            //setDeferred();
                         }
                     }]);
                 }
-                setDeferred();
+                //setDeferred();
 //console.log(globals.scripts);
             }
         },
