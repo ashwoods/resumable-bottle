@@ -8,6 +8,11 @@
 <!--
 TD{font-family: Arial, Helvetica, sans-serif; font-size: 8pt;}
 
+#content {
+    width: 1000px;
+    margin: 0 auto;
+}
+
 #loading_area {
     background: url('img/waiting.gif') no-repeat center;
 }
@@ -15,7 +20,7 @@ TD{font-family: Arial, Helvetica, sans-serif; font-size: 8pt;}
     visibility: hidden;
 }
 --->
-.example{padding:10px;border:1px solid #ccc}#drop_zone{border:2px dashed #bbb;-moz-border-radius:5px;-webkit-border-radius:5px;border-radius:5px;padding:25px;text-align:center;font:20pt bold,"Vollkorn";color:#bbb}.thumb{height:75px;border:1px solid #000;margin:10px 5px 0 0}#progress_bar{margin:10px 0;padding:3px;border:1px solid #000;font-size:14px;clear:both;opacity:0;-o-transition:opacity 1s linear;-moz-transition:opacity 1s linear;-webkit-transition:opacity 1s linear;-ms-transition:opacity 1s linear}#progress_bar.loading{opacity:1}#progress_bar .percent{background-color:#9cf;height:auto;width:0}#byte_content{margin:5px 0;max-height:100px;overflow-y:auto;overflow-x:hidden}#byte_range{margin-top:5px}
+/*.example{padding:10px;border:1px solid #ccc}#drop_zone{border:2px dashed #bbb;-moz-border-radius:5px;-webkit-border-radius:5px;border-radius:5px;padding:25px;text-align:center;font:20pt bold,"Vollkorn";color:#bbb}.thumb{height:75px;border:1px solid #000;margin:10px 5px 0 0}#progress_bar{margin:10px 0;padding:3px;border:1px solid #000;font-size:14px;clear:both;opacity:0;-o-transition:opacity 1s linear;-moz-transition:opacity 1s linear;-webkit-transition:opacity 1s linear;-ms-transition:opacity 1s linear}#progress_bar.loading{opacity:1}#progress_bar .percent{background-color:#9cf;height:auto;width:0}#byte_content{margin:5px 0;max-height:100px;overflow-y:auto;overflow-x:hidden}#byte_range{margin-top:5px}*/
 </style>
 </head>
 
@@ -72,12 +77,14 @@ TD{font-family: Arial, Helvetica, sans-serif; font-size: 8pt;}
 </script>
 
 <body>
-    <div id="loading_area">
-        <div id="drop_zone" class="uploader" data-upload="/upload">
-            Drop files here or <a href="#" id="browsebutton">click to open file browser</a>
-        </div>
-        <div id="drop_zone2" class="uploader" data-upload="/upload2">
-            Drop files here or <a href="#" id="browsebutton2">click to open file browser</a>
+    <div id="content">
+        <div id="loading_area">
+            <div id="drop_zone" class="drop_zones" data-upload="/upload">
+                Drop files here or <a href="#" id="browsebutton">click to open file browser</a>
+            </div>
+            <div id="drop_zone2" class="drop_zones" data-upload="/upload2">
+                Drop files here or <a href="#" id="browsebutton2">click to open file browser</a>
+            </div>
         </div>
     </div>
 <output id="list"></output>

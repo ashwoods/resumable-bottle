@@ -52,6 +52,10 @@ def index():
 def static(path):
     return static_file(path, root='js')
 
+@app.route('/css/:path#.+#', name='css')
+def static(path):
+    return static_file(path, root='css')
+
 @app.route('/img/:path#.+#', name='img')
 def static(path):
     return static_file(path, root='img')

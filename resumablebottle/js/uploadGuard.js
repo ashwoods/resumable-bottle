@@ -1,4 +1,7 @@
-
+/*
+ *  uploadGuard.js
+ *  Adrian Soluch, adrian@soluch.at
+ */
 
 var uploadPlugin = {
     globals : {
@@ -22,7 +25,7 @@ var testForResumableJs = ( ( typeof( FileReader ) === 'undefined' ) && testForFi
 Modernizr.load([
     {
         test : testForFileReader,
-        yep : ['js/resumable.js','js/spark-md5.min.js'],
+        yep : ['js/resumable.js','js/spark-md5.min.js','css/uploadGuard.css'],
         callback: function( url, result, key ) {
             // callback method gets called after every ( yep & nope ) action!
             if( ! uploadPlugin.globals.uploader ) {
@@ -32,18 +35,20 @@ Modernizr.load([
         complete : function() {
             if( uploadPlugin.globals.uploader === 'FileReader' ) {
                 $('#loading_area').css('background-image', 'none');
+                //$('.drop_zones')
                 $('[data-upload]')
                     .css({'visibility':'visible'})
                     .uploadGuard({
                         'uploader':uploadPlugin.globals.uploader,
-                        'checkFileOnServerPath':'/check'
+                        'checkFileOnServerPath':'/check',
+                        'url':'/upload'
                     });
             }
         }
     },
     {
         test : testForResumableJs,
-        yep : ['js/resumable.js'],
+        yep : ['js/resumable.js','js/spark-md5.min.js'],
         callback: function( url, result, key ) {
             // callback method gets called after every ( yep & nope ) action!
             if( ! uploadPlugin.globals.uploader ) {
@@ -97,7 +102,10 @@ Modernizr.load([
 
     Plugin.prototype = {
         init: function () {
-            this.options.url = $(this.element).data('upload');
+
+            if( $(this.element).data('upload') ) { this.options.url = $(this.element).data('upload'); }
+console.log( this.options );
+
             switch( this.options.uploader ) {
                 case 'resumable' :
                     this.resumableJs.init( this );
@@ -109,7 +117,7 @@ Modernizr.load([
                 break;
             }
         },
-        checkForFileExistence : function( fileData, file ) {
+        checkForFileExistence : function( fileData ) {
 //console.log( fileData );
 //console.log( this.options.checkFileOnServerPath );
             $.ajax({
@@ -147,7 +155,7 @@ Modernizr.load([
                     if( that.options.checkFileOnServerPath ) {
                         //console.log( that.options.checkFileOnServerPath );
                         var fileMD5 = thisPlugin.resumableJs.generateMD5( file );
-                        that.checkForFileExistence( {'name':file.fileName, 'size':file.size, 'md5':fileMD5}, file );
+                        that.checkForFileExistence( {'name':file.fileName, 'size':file.size, 'md5':fileMD5} );
                     }
                     else {
                         thisPlugin.resumableJs.prepareUpload();
@@ -178,7 +186,7 @@ Modernizr.load([
                 return spark.end();
             },
             prepareUpload : function() {
-                //console.log( theThat );
+                //console.log( );
                 if( thisPlugin.options.uploader === 'FileReader' ) {
                     chunkSize = 2097152,                               // read in chunks of 2MB
                     chunksAll = Math.ceil(theFile.size / chunkSize),
@@ -226,8 +234,8 @@ Modernizr.load([
 
     $.fn[pluginName] = function (options) {
         return this.each(function () {
-            if (!$.data(this, "plugin_" + pluginName)) {
-                $.data(this, "plugin_" + pluginName, new Plugin(this, options));
+            if( ! $.data( this, "plugin_" + pluginName ) ) {
+                $.data( this, "plugin_" + pluginName, new Plugin( this, options ) );
             }
         });
     };
