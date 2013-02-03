@@ -79,8 +79,10 @@ TD{font-family: Arial, Helvetica, sans-serif; font-size: 8pt;}
 <body>
     <div id="content">
         <div id="loading_area">
-            <div id="drop_zone" class="drop_zones" data-upload="/upload">
+            <div id="drop_zone" class="drop_zones" data-upload="/upload" data-populate-from="/populate" >
                 Drop files here or <a href="#" id="browsebutton">click to open file browser</a>
+            </div>
+            <div id="drop_zone_info">
             </div>
             <div id="drop_zone2" class="drop_zones" data-upload="/upload2">
                 Drop files here or <a href="#" id="browsebutton2">click to open file browser</a>

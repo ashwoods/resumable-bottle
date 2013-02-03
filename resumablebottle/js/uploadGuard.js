@@ -1,11 +1,30 @@
 /*
  *  uploadGuard.js
  *  Adrian Soluch, adrian@soluch.at
+ *
+ *  ug_{HASH}   css class represents the dropzone
+ *  ugt_{HASH}  css class represents the upload data table
  */
 
 var uploadPlugin = {
     globals : {
-        uploader : false
+        uploader : false,
+        table : '<table class="">' // this table serves as template for all upload controls 
+                    +'<tr>'
+                        +'<th></th>' // uploadprogress
+                        +'<th>Thumbnail</th>'
+                        +'<th>Name</th>'
+                        +'<th>Size</th>'
+                        +'<th>Filetype</th>'
+                    +'</tr>'
+                    +'<tr id="cloneMe">'
+                        +'<td></td>'
+                        +'<td></td>'
+                        +'<td></td>'
+                        +'<td></td>'
+                        +'<td></td>'
+                    +'</tr>'
+                +'</table>'
     }
 };
 
@@ -41,7 +60,9 @@ Modernizr.load([
                     .uploadGuard({
                         'uploader':uploadPlugin.globals.uploader,
                         'checkFileOnServerPath':'/check',
-                        'url':'/upload'
+                        'url':'/upload',     // data-upload will be preferred
+                        'uploadControlsTable' : uploadPlugin.globals.table  // a table template to be cloned
+                        //'uploadControlsTableWrapper' : '#drop_zone_info' // into which html dom element to add the controls ( optional )
                     });
             }
         }
@@ -89,7 +110,8 @@ Modernizr.load([
     var thisPlugin = {};
     var defaults = {
         url: null,
-        checkFileOnServerPath: null
+        checkFileOnServerPath: null,
+        hash : null
     };
 
     function Plugin(element, options) {
@@ -103,8 +125,9 @@ Modernizr.load([
     Plugin.prototype = {
         init: function () {
 
-            if( $(this.element).data('upload') ) { this.options.url = $(this.element).data('upload'); }
-console.log( this.options );
+            this.setExtraOptions();
+
+            this.initHtmlControls();
 
             switch( this.options.uploader ) {
                 case 'resumable' :
@@ -117,9 +140,14 @@ console.log( this.options );
                 break;
             }
         },
+        setExtraOptions : function() {
+
+            if( $(this.element).data('upload') ) { this.options.url = $(this.element).data('upload'); }
+            this.options.hash = this.generateHash();
+            $(this.element).addClass( 'ug_' + this.options.hash ); // setting ug_{HASH} css class
+        },
         checkForFileExistence : function( fileData ) {
-//console.log( fileData );
-//console.log( this.options.checkFileOnServerPath );
+
             $.ajax({
                 type: "POST",
                 url: this.options.checkFileOnServerPath,
@@ -129,13 +157,62 @@ console.log( this.options );
                 success: function( msg ) {
                     if( msg.pass ) {
                         thisPlugin.resumableJs.prepareUpload();
-                        //return true;
                     }
                     else {
-                        //return false;
+                        // TODO
                     }
                 },
             });
+        },
+        initHtmlControls : function() {
+
+            if( this.options.uploadControlsTableWrapper ) {
+
+                $( this.options.uploadControlsTableWrapper )
+                    .append('<div class="ugt_' + this.options.hash + '" />'); // setting ugt_{HASH} css class
+                $( '.ugt_' + this.options.hash )
+                    .append( this.options.uploadControlsTable );
+            }
+            else {
+
+                // standard-wise the controls table will be added
+                // after the drop zone
+                $(this.element)
+                    .after( this.options.uploadControlsTable );
+                $(this.element)
+                    .next('table')
+                    .wrap('<div class="ugt_' + this.options.hash + '" />'); // setting ugt_{HASH} css class
+            }
+
+            // populate the table with data
+            this.populateHtmlControls();
+        },
+        populateHtmlControls : function() {
+
+            if( $(this.element).data('populate-from') ) {
+                that = this;
+
+                // fetch data from [data-populate-from]
+                $.getJSON( $(this.element).data('populate-from'), function( data ) {
+
+                    // populate table rows with the fetched data
+                    $.each( data, function( key, val ) {
+
+                        console.log( val );
+                        $( '.ugt_' + that.options.hash + ' table' )
+                            .append('<tr>'
+                                        +'<td></td>'
+                                        +'<td>' + val.thumbnail + '</td>'
+                                        +'<td>' + val.name + '</td>'
+                                        +'<td>' + val.type + '</td>'
+                                        +'<td>' + val.size + '</td>'
+                                    +'</tr>');
+                    });
+                });
+            }
+        },
+        generateHash : function() {
+            return Math.floor(Math.random()*1000000);
         },
         resumableJs : {
             init : function( that ) {
@@ -152,30 +229,15 @@ console.log( this.options );
 
                     theFile = file;
 
+//console.log( theFile.file.type );
                     if( that.options.checkFileOnServerPath ) {
                         //console.log( that.options.checkFileOnServerPath );
                         var fileMD5 = thisPlugin.resumableJs.generateMD5( file );
-                        that.checkForFileExistence( {'name':file.fileName, 'size':file.size, 'md5':fileMD5} );
+                        that.checkForFileExistence( {'name':theFile.fileName, 'size':theFile.size, 'type':theFile.file.type, 'md5':fileMD5} );
                     }
                     else {
                         thisPlugin.resumableJs.prepareUpload();
                     }
-
-                    //console.log(  );
-/*                    if( that.options.uploader === 'FileReader' ) {
-                        theFile = file;
-                        chunkSize = 2097152,                               // read in chunks of 2MB
-                        chunksAll = Math.ceil(theFile.size / chunkSize),
-                        chunks = Math.ceil(theFile.size / chunkSize),
-                        currentChunk = 0,
-
-                        spark = new SparkMD5.ArrayBuffer(),
-                        uploadPlugin.resumableJs.loadNext(file);
-                    }
-                    else {
-                        // standard resumable upload
-                        r.upload();
-                    }*/
                 });
             },
             generateMD5 : function( file ) {

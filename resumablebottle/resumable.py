@@ -48,6 +48,14 @@ def index():
     ret = { "id": 1, "pass": '1' }
     return dumps(ret)
 
+@app.get('/populate')
+def index():
+    response.content_type = 'application/json'
+    ret = [ { 'thumbnail':'http://dummyimage.com/30x30/000/fff', 'name':'testfile_one', 'size':'213', 'type':'jpg' },
+            { 'thumbnail':'http://dummyimage.com/30x30/000/fff', 'name':'testfile_two', 'size':'5342', 'type':'png' },
+            { 'thumbnail':'http://dummyimage.com/30x30/000/fff', 'name':'testfile_three', 'size':'442', 'type':'png' }]
+    return dumps(ret)
+
 @app.route('/js/:path#.+#', name='js')
 def static(path):
     return static_file(path, root='js')
