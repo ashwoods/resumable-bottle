@@ -11,18 +11,12 @@
 var uploadPlugin = {
     globals : {
         uploader : false,
-        table : '<table class="">' // this table serves as template for all upload controls 
+        table : '<table class="dashboard">' // this table serves as template for all upload controls
                     +'<tr>'
-                        +'<th>Thumbnail</th>'
-                        +'<th>Name</th>'
-                        +'<th>Size</th>'
-                        +'<th>Filetype</th>'
-                    +'</tr>'
-                    +'<tr id="cloneMe">'
-                        +'<td></td>'
-                        +'<td></td>'
-                        +'<td></td>'
-                        +'<td></td>'
+                        +'<th data-name="thumbnail">Thumbnail</th>'
+                        +'<th data-name="name">Name</th>'
+                        +'<th data-name="type">Filetype</th>'
+                        +'<th data-name="size">Size</th>'
                     +'</tr>'
                 +'</table>'
     }
@@ -122,7 +116,8 @@ Modernizr.load([
     var defaults = {
         url: null,
         checkFileOnServerPath: null,
-        hash : null
+        hash : null,
+        dashboard : {}  // filelist & controls table structure
     };
 
     function Plugin(element, options) {
@@ -185,7 +180,6 @@ Modernizr.load([
                     .append( this.options.uploadControlsTable );
             }
             else {
-
                 // standard-wise the controls table will be added
                 // after the drop zone
                 $(this.element)
@@ -195,8 +189,22 @@ Modernizr.load([
                     .wrap('<div class="ugt_' + this.options.hash + '" />'); // setting ugt_{HASH} css class
             }
 
+            this.tableAnalyzr();
+
             // populating the table with data
             this.populateHtmlControls();
+        },
+        tableAnalyzr : function() {
+            // generating a template for the table td's & 
+            // data bindings for populating the dashboard with file data
+            var that = this;
+            $( '.ugt_' + this.options.hash + ' table th' ).each( function( i, item ) {
+                var data = $( item ).data().name;
+                var item = '_'+i;
+                that.options.dashboard[i] = {
+                    'data' : data
+                };
+            });
         },
         populateHtmlControls : function() {
 
@@ -316,15 +324,11 @@ Modernizr.load([
                 fileReader.onerror = thisPlugin.FileReaderInterface.frOnerror;
                 var start = currentChunk * chunkSize,
                    end = ((start + chunkSize) >= theFile.size) ? theFile.size : start + chunkSize;
-                console.log(start);
-                console.log(end);
                 var blob = theFile.file.slice(start, end);
                 fileReader.readAsArrayBuffer(blob);
             },
             frOnload : function(e) {
                 console.log("read chunk nr", currentChunk + 1, "of", chunks);
-                //console.log(e.target.result);
-                //throw "stop execution";
                 spark.append(e.target.result);                 // append array buffer
                 currentChunk++;
                 if (currentChunk < chunks) {
