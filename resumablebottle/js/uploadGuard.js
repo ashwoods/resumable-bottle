@@ -26,6 +26,8 @@ var uploadGuard = {
     }
 };
 
+
+// Plugin Initialization Options
 var uploadGuardInitOptions = function() {
     return {
         // "FileReader", "resumableJs" or "plupload" ( required )
@@ -41,6 +43,7 @@ var uploadGuardInitOptions = function() {
     }
 }
 
+
 // Browser compatibility test suites
 var testForFileAPI = ( Modernizr.draganddrop
                         && ( typeof( File )!=='undefined' ) 
@@ -54,6 +57,7 @@ var testForFileAPI = ( Modernizr.draganddrop
 
 var testForFileReader = ( ( typeof( FileReader ) === 'undefined' ) && testForFileAPI );
 var testForResumableJs = ( ( typeof( FileReader ) !== 'undefined' ) && testForFileAPI );
+
 
 Modernizr.load([
     {
@@ -160,7 +164,7 @@ Modernizr.load([
         setExtraOptions : function() {
 
             if( $(this.element).data('upload') ) { this.options.url = $(this.element).data('upload'); }
-            this.options.uniqId = this.generateHash();
+            this.options.uniqId = this.generateUniqId();
             $(this.element).addClass( 'ug_' + this.options.uniqId ); // setting ug_{uniqId} css class
         },
         checkForFileExistence : function( fileData ) {
@@ -231,17 +235,19 @@ Modernizr.load([
                     $.each( data, function( key, val ) {
 
                         $( '.ugt_' + that.options.uniqId + ' table' )
-                            .append('<tr>'
-                                        +'<td>' + val.thumbnail + '</td>'
-                                        +'<td>' + val.name + '</td>'
-                                        +'<td>' + val.type + '</td>'
-                                        +'<td>' + val.size + '</td>'
-                                    +'</tr>');
+                            .append(
+                                '<tr>'
+                                    +'<td>' + val.thumbnail + '</td>'
+                                    +'<td>' + val.name + '</td>'
+                                    +'<td>' + val.type + '</td>'
+                                    +'<td>' + val.size + '</td>'
+                                +'</tr>'
+                            );
                     });
                 });
             }
         },
-        generateHash : function() {
+        generateUniqId : function() {
 
             return Math.floor(Math.random()*1000000);
         },
