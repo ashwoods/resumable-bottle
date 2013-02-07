@@ -8,7 +8,7 @@
  */
 
 
-var uploadPlugin = {
+var uploadGuard = {
     globals : {
         // this var contains a string which 
         // uploadprocess / plugin is gonna be used & is indispensable
@@ -29,13 +29,13 @@ var uploadPlugin = {
 var uploadGuardInitOptions = function() {
     return {
         // "FileReader", "resumableJs" or "plupload" ( required )
-        'uploader' : uploadPlugin.globals.uploader, 
+        'uploader' : uploadGuard.globals.uploader, 
         // upload path / URL ( [data-upload] will be preferred - required )
         'url' : '/upload',
         // when checking a file on the server, which URL to use ( optional )
         'fileCheckPath' : '/check',
         // the table template which will be used as template for the file info dashboard ( optional )
-        'uploadControlsTable' : uploadPlugin.globals.table
+        'uploadControlsTable' : uploadGuard.globals.table
         // into which html dom element to add the controls ( optional )
         //'uploadControlsTableWrapper' : '#drop_zone_info' 
     }
@@ -61,12 +61,12 @@ Modernizr.load([
         yep : ['js/resumable.js','js/spark-md5.min.js', 'js/jquery.knob.js','css/uploadGuard.css'],
         callback: function( url, result, key ) {
             // callback method gets called after every ( yep & nope ) action!
-            if( ! uploadPlugin.globals.uploader ) {
-                uploadPlugin.globals.uploader = 'FileReader'
+            if( ! uploadGuard.globals.uploader ) {
+                uploadGuard.globals.uploader = 'FileReader'
             }
         },
         complete : function() {
-            if( uploadPlugin.globals.uploader === 'FileReader' ) {
+            if( uploadGuard.globals.uploader === 'FileReader' ) {
                 $('#loading_area').css('background-image', 'none');
                 //$('.drop_zones')
                 $('[data-upload]')
@@ -82,17 +82,17 @@ Modernizr.load([
         yep : ['js/resumable.js','js/spark-md5.min.js', 'js/jquery.knob.js','css/uploadGuard.css'],
         callback: function( url, result, key ) {
             // callback method gets called after every ( yep & nope ) action!
-            if( ! uploadPlugin.globals.uploader ) {
-                uploadPlugin.globals.uploader = 'resumableJs';
+            if( ! uploadGuard.globals.uploader ) {
+                uploadGuard.globals.uploader = 'resumableJs';
             }
         },
         complete : function() {
             // "complete" callback will be executed after all tests done & file downloading completed
-            if( uploadPlugin.globals.uploader === 'resumableJs' ) {
+            if( uploadGuard.globals.uploader === 'resumableJs' ) {
                 // initializing the main upload plugin
-                            console.log( uploadPlugin.globals.init_options );
+                            console.log( uploadGuard.globals.init_options );
                 $('#loading_area').css('background-image', 'none');
-                //$('[data-upload]').css({'visibility':'visible'}).uploadGuard({'uploader':uploadPlugin.globals.uploader});
+                //$('[data-upload]').css({'visibility':'visible'}).uploadGuard({'uploader':uploadGuard.globals.uploader});
                 $('[data-upload]')
                     .css({'visibility':'visible'})
                     .uploadGuard(
@@ -106,12 +106,12 @@ Modernizr.load([
         yep : [''],
         callback: function( url, result, key ) {
             // callback method gets called after every ( yep, nope ) action!
-            if( ! uploadPlugin.globals.uploader ) {
-                uploadPlugin.globals.uploader = 'plupload';
+            if( ! uploadGuard.globals.uploader ) {
+                uploadGuard.globals.uploader = 'plupload';
             }
         },
         complete : function() {
-            if( uploadPlugin.globals.uploader === 'plupload' ) {
+            if( uploadGuard.globals.uploader === 'plupload' ) {
             }
         }
     }
