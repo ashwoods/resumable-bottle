@@ -29,27 +29,6 @@ TD{font-family: Arial, Helvetica, sans-serif; font-size: 8pt;}
 <script type="text/javascript" src="js/modernizr.full.min.js" charset="utf-8"></script>
 
 <script>
-    /*var globals = {
-        //uploader : null, // the plugin ( name string ) which will be used for uploads
-        scripts : null
-    };
-
-    var setDeferred = function() {
-        if( window.jQuery ) {
-            globals.scripts = new $.Deferred();
-        }
-    };*/
-    var setErrorLog = function() {
-        if( window.jQuery ) {
-            $(window).error( function( msg, url, line ) {
-                console.log( msg );
-                console.log( url );
-                console.log( line );
-                //jQuery.post("/js_error_log", { msg: msg, url: url, line: line });
-            });
-        }
-    }
-
     // setting the timeOut for fileloading
     // a file appears to not be loadable anymore, essential files should be loaded from a different source
     yepnope.errorTimeout = 2000;
@@ -57,17 +36,14 @@ TD{font-family: Arial, Helvetica, sans-serif; font-size: 8pt;}
     Modernizr.load([
         {
             load : 'http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js',
-            complete : function () { // "complete" callback will be executed after the file downloading is completed
+            complete : function () { // the "complete" callback will be executed after the file downloading is completed
                 if( ! window.jQuery ) {
                     Modernizr.load([{
                         load : 'js/jquery.min.js',
                         complete : function () {
-                            //setDeferred();
                         }
                     }]);
                 }
-                //setDeferred();
-//console.log(globals.scripts);
             }
         },
         {

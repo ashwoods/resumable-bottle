@@ -2,26 +2,44 @@
  *  uploadGuard.js
  *  Adrian Soluch, adrian@soluch.at
  *
- *  ug_{HASH}   css class represents the dropzone
- *  ugt_{HASH}  css class represents the upload data table
- *  ugf_{some unique file identifier}  
+ *  ug_{uniqId}     css class representng the dropzone
+ *  ugt_{uniqId}    css class representing the upload data table
+ *  ugf_{uniqueId}  unique file identifier
  */
 
 
 var uploadPlugin = {
     globals : {
+        // this var contains a string which 
+        // uploadprocess / plugin is gonna be used & is indispensable
         uploader : false,
-        table : '<table class="dashboard">' // this table serves as template for all upload controls
-                    +'<tr>'
-                        +'<th data-name="thumbnail">Thumbnail</th>'
-                        +'<th data-name="name">Name</th>'
-                        +'<th data-name="type">Filetype</th>'
-                        +'<th data-name="size">Size</th>'
-                    +'</tr>'
-                +'</table>'
+        // this table serves as template for all upload controls
+        table : 
+            '<table class="dashboard">'
+                +'<tr>'
+                    +'<th data-name="thumbnail">Thumbnail</th>'
+                    +'<th data-name="name">Name</th>'
+                    +'<th data-name="type">Filetype</th>'
+                    +'<th data-name="size">Size</th>'
+                +'</tr>'
+            +'</table>'
     }
 };
 
+var uploadGuardInitOptions = function() {
+    return {
+        // "FileReader", "resumableJs" or "plupload" ( required )
+        'uploader' : uploadPlugin.globals.uploader, 
+        // upload path / URL ( [data-upload] will be preferred - required )
+        'url' : '/upload',
+        // when checking a file on the server, which URL to use ( optional )
+        'fileCheckPath' : '/check',
+        // the table template which will be used as template for the file info dashboard ( optional )
+        'uploadControlsTable' : uploadPlugin.globals.table
+        // into which html dom element to add the controls ( optional )
+        //'uploadControlsTableWrapper' : '#drop_zone_info' 
+    }
+}
 
 // Browser compatibility test suites
 var testForFileAPI = ( Modernizr.draganddrop
@@ -53,13 +71,9 @@ Modernizr.load([
                 //$('.drop_zones')
                 $('[data-upload]')
                     .css({'visibility':'visible'})
-                    .uploadGuard({
-                        'uploader' : uploadPlugin.globals.uploader, // "FileReader", "resumableJs" or "plupload"
-                        'checkFileOnServerPath' : '/check',
-                        'url' : '/upload',     // upload path ( [data-upload] will be preferred )
-                        'uploadControlsTable' : uploadPlugin.globals.table  // a table template to be cloned
-                        //'uploadControlsTableWrapper' : '#drop_zone_info' // into which html dom element to add the controls ( optional )
-                    });
+                    .uploadGuard(
+                        uploadGuardInitOptions()
+                    );
             }
         }
     },
@@ -76,17 +90,14 @@ Modernizr.load([
             // "complete" callback will be executed after all tests done & file downloading completed
             if( uploadPlugin.globals.uploader === 'resumableJs' ) {
                 // initializing the main upload plugin
+                            console.log( uploadPlugin.globals.init_options );
                 $('#loading_area').css('background-image', 'none');
                 //$('[data-upload]').css({'visibility':'visible'}).uploadGuard({'uploader':uploadPlugin.globals.uploader});
                 $('[data-upload]')
                     .css({'visibility':'visible'})
-                    .uploadGuard({
-                        'uploader' : uploadPlugin.globals.uploader, // "FileReader", "resumableJs" or "plupload"
-                        'checkFileOnServerPath' : '/check',
-                        'url' : '/upload',     // upload path ( [data-upload] will be preferred )
-                        'uploadControlsTable' : uploadPlugin.globals.table  // a table template to be cloned
-                        //'uploadControlsTableWrapper' : '#drop_zone_info' // into which html dom element to add the controls ( optional )
-                    });
+                    .uploadGuard(
+                        uploadGuardInitOptions()
+                    );
             }
         }
     },
@@ -110,13 +121,13 @@ Modernizr.load([
 /**
  *  the main upload scripts handler plugin
  * */
-;(function ($, window, document, undefined) {
+(function ($, window, document, undefined) {
     var pluginName = "uploadGuard";
     var thisPlugin = {};
     var defaults = {
         url: null,
-        checkFileOnServerPath: null,
-        hash : null,
+        fileCheckPath: null,
+        uniqId : null,
         dashboard : {}  // filelist & controls table structure
     };
 
@@ -149,14 +160,14 @@ Modernizr.load([
         setExtraOptions : function() {
 
             if( $(this.element).data('upload') ) { this.options.url = $(this.element).data('upload'); }
-            this.options.hash = this.generateHash();
-            $(this.element).addClass( 'ug_' + this.options.hash ); // setting ug_{HASH} css class
+            this.options.uniqId = this.generateHash();
+            $(this.element).addClass( 'ug_' + this.options.uniqId ); // setting ug_{uniqId} css class
         },
         checkForFileExistence : function( fileData ) {
 
             $.ajax({
                 type: "POST",
-                url: this.options.checkFileOnServerPath,
+                url: this.options.fileCheckPath,
                 data: fileData,
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
@@ -175,18 +186,20 @@ Modernizr.load([
             if( this.options.uploadControlsTableWrapper ) {
 
                 $( this.options.uploadControlsTableWrapper )
-                    .append('<div class="ugt_' + this.options.hash + '" />'); // setting ugt_{HASH} css class
-                $( '.ugt_' + this.options.hash )
+                    .append('<div class="ugt_' + this.options.uniqId + '" />'); // setting ugt_{uniqId} css class
+                $( '.ugt_' + this.options.uniqId )
                     .append( this.options.uploadControlsTable );
             }
             else {
-                // standard-wise the controls table will be added
-                // after the drop zone
-                $(this.element)
-                    .after( this.options.uploadControlsTable );
-                $(this.element)
-                    .next('table')
-                    .wrap('<div class="ugt_' + this.options.hash + '" />'); // setting ugt_{HASH} css class
+                if( this.options.uploadControlsTable ) {
+                    // standard-wise the controls table will be added
+                    // after the drop zone
+                    $(this.element)
+                        .after( this.options.uploadControlsTable );
+                    $(this.element)
+                        .next('table')
+                        .wrap('<div class="ugt_' + this.options.uniqId + '" />'); // setting ugt_{uniqId} css class
+                    }
             }
 
             this.tableAnalyzr();
@@ -198,7 +211,7 @@ Modernizr.load([
             // generating a template for the table td's & 
             // data bindings for populating the dashboard with file data
             var that = this;
-            $( '.ugt_' + this.options.hash + ' table th' ).each( function( i, item ) {
+            $( '.ugt_' + this.options.uniqId + ' table th' ).each( function( i, item ) {
                 var data = $( item ).data().name;
                 var item = '_'+i;
                 that.options.dashboard[i] = {
@@ -217,7 +230,7 @@ Modernizr.load([
                     // populate table rows with the fetched data
                     $.each( data, function( key, val ) {
 
-                        $( '.ugt_' + that.options.hash + ' table' )
+                        $( '.ugt_' + that.options.uniqId + ' table' )
                             .append('<tr>'
                                         +'<td>' + val.thumbnail + '</td>'
                                         +'<td>' + val.name + '</td>'
@@ -248,7 +261,7 @@ Modernizr.load([
                 //$('#assets').addTableLine( 'resumable-file-'+file.uniqueIdentifier, file );
 
 
-                    $( '.ugt_' + that.options.hash + ' table' )
+                    $( '.ugt_' + that.options.uniqId + ' table' )
                         .append('<tr id="ugf_' + file.uniqueIdentifier + '">'
                                     +'<td>'
                                         +'<input'
@@ -291,7 +304,7 @@ Modernizr.load([
 
                     theFile = file;
 
-                    if( that.options.checkFileOnServerPath ) {
+                    if( that.options.fileCheckPath ) {
 
                         var fileMD5 = thisPlugin.FileReaderInterface.generateMD5( file );
                         that.checkForFileExistence( {'name':theFile.fileName, 'size':theFile.size, 'type':theFile.file.type, 'md5':fileMD5} );
