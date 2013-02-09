@@ -352,12 +352,7 @@ Modernizr.load([
                //$( '.resumable-file-'+file.uniqueIdentifier+' .resumable-file-name' ).html( file.fileName + ' ' + bytesToSize( file.size, 2 ) + ' <br>' );
                 //$('#assets').addTableLine( 'resumable-file-'+file.uniqueIdentifier, file );
 
-                    if( that.options.knob.data_fgColor ) {
-                        var fgColor = that.options.knob.data_fgColor;
-                    }
-                    else {
-                        var fgColor = '#' + Math.floor(Math.random()*16777215).toString(16);
-                    }
+                    var fgColor = ( ( that.options.knob.data_fgColor ) ?  that.options.knob.data_fgColor : '#' + Math.floor(Math.random()*16777215).toString(16) );
 
                     $( '.ugt_' + that.options.uniqId + ' table' )
                         .append('<tr id="ugf_' + file.uniqueIdentifier + '">'
