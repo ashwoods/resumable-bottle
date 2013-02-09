@@ -49,7 +49,8 @@ var uploadGuard = {
                     +'</tr>'
                 +'</thead>'
             +'</table>',
-        resumableJsLoad : ['js/resumable.js','js/spark-md5.min.js','js/jquery.knob.js','css/uploadGuard.css'/*,'//cdnjs.cloudflare.com/ajax/libs/datatables/1.9.4/jquery.dataTables.min.js '*/]
+        resumableJsLoadfiles : ['js/resumable.js','js/spark-md5.min.js','js/jquery.knob.js','css/uploadGuard.css'/*,'//cdnjs.cloudflare.com/ajax/libs/datatables/1.9.4/jquery.dataTables.min.js '*/],
+        pluploadLoadfiles : ['js/plupload/plupload.full.js','js/plupload/plupload.browserplus.js','js/plupload/jquery.plupload.queue.js']
     }
 };
 
@@ -107,7 +108,7 @@ Modernizr.load([
         },
         complete : function() {
             if( uploadGuard.globals.uploader === 'FileReader' ) {
-                $('#loading_area').css('background-image', 'none');
+                $('#loading_area').css('background-image', 'none'); // removing the waiting animated gif
                 //$('.drop_zones')
                 $('[data-drop-zone]')
                     .css({'visibility':'visible'})
@@ -120,7 +121,7 @@ Modernizr.load([
     {
         test : testForResumableJs,  // resumable.js
         //yep : ['js/resumable.js','js/spark-md5.min.js', 'js/jquery.knob.js','css/uploadGuard.css'],
-        yep : uploadGuard.globals.resumableJsLoad,
+        yep : uploadGuard.globals.resumableJsLoadfiles,
         callback: function( url, result, key ) {
             // callback method gets called after every ( yep & nope ) action!
             if( ! uploadGuard.globals.uploader ) {
@@ -131,7 +132,7 @@ Modernizr.load([
             // "complete" callback will be executed after all tests done & file downloading completed
             if( uploadGuard.globals.uploader === 'resumableJs' ) {
                 // initializing the main upload plugin
-                $('#loading_area').css('background-image', 'none');
+                $('#loading_area').css('background-image', 'none'); // removing the waiting animated gif
                 //$('[data-upload]').css({'visibility':'visible'}).uploadGuard({'uploader':uploadGuard.globals.uploader});
                 $('[data-drop-zone]')
                     .css({'visibility':'visible'})
@@ -143,7 +144,7 @@ Modernizr.load([
     },
     {
         test : ! testForResumableJs,    // plupload
-        yep : [''],
+        yep : uploadGuard.globals.pluploadLoadfiles,
         callback: function( url, result, key ) {
             // callback method gets called after every ( yep, nope ) action!
             if( ! uploadGuard.globals.uploader ) {
@@ -152,6 +153,12 @@ Modernizr.load([
         },
         complete : function() {
             if( uploadGuard.globals.uploader === 'plupload' ) {
+                $('#loading_area').css('background-image', 'none'); // removing the waiting animated gif
+                $('[data-drop-zone]')
+                    .css({'visibility':'visible'})
+                    .uploadGuard(
+                        uploadGuardInitOptions()
+                    );
             }
         }
     }
@@ -197,6 +204,9 @@ Modernizr.load([
                 break;
                 case 'FileReader' :
                     this.FileReaderInterface.init( this );
+                break;
+                case 'plupload' :
+                    this.plupload.init( this );
                 break;
                 default:
                 break;
@@ -374,6 +384,11 @@ Modernizr.load([
                     // Handle progress for both the file and the overall upload
                     $( '.progressbar_' + file.uniqueIdentifier ).val( Math.floor( file.progress()*100 ) ).trigger('change');
                 });
+            }
+        },
+        plupload : {
+
+            init : function( that ) {
             }
         },
         FileReaderInterface : {
