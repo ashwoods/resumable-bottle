@@ -2,17 +2,28 @@
  *  uploadGuard.js
  *  Adrian Soluch 2013, adrian@soluch.at
  *
+ *  All options may be passed via plugin options and data attributes
+ *  whereby data attributes will always override plugin options.
+ *
+ *  html data options :
+ *  ******************
+ *  data-upload             url whereto upload files
+ *  data-populate-from      url from where to populate with existing data ( onpageload ), e.g. which file were uploaded so far
+ *  data-filecheck-path     url to use when checking a particular file on the server
+ *
+ *
+ *  dashboard table data options ( uploadGuard.globals.table ) :
+ *  ************************************************************
+ *  data-name               for the display order of dashboard elements
+ *                          possible features : thumbnail, name, type, size
+ *
+ *
+ *  Unique ID overview :
+ *  ********************
  *  ug_{uniqId}     css class representng the dropzone
  *  ugt_{uniqId}    css class representing the upload data table
  *  ugf_{uniqueId}  unique file identifier
  *
- *  html data options :
- *  data-populate-from      url from where to populate with existing data ( onpageload ), e.g. which file were uploaded so far
- *  data-upload             url whereto upload files
- *
- *  dashboard table data options ( uploadGuard.globals.table ) :
- *  data-name               for the display order of dashboard elements
- *                          possible features : thumbnail, name, type, size
  */
 
 
@@ -25,6 +36,7 @@ var uploadGuard = {
         table : 
             '<table class="dashboard">'
                 +'<tr>'
+                    +'<th>Something</th>'
                     +'<th data-name="thumbnail">Thumbnail</th>'
                     +'<th data-name="name">Name</th>'
                     +'<th data-name="type">Filetype</th>'
@@ -44,9 +56,12 @@ var uploadGuardInitOptions = function() {
         'url' : '/upload',
         // when checking a file on the server, which URL to use ( optional, also possible through data-filecheck-path data attribute, which will bind stronger )
         'fileCheckPath' : '/check',
-        // the table template which will be used as template for the file info dashboard ( optional )
-        'uploadControlsTable' : uploadGuard.globals.table
-        // into which html dom element to add the controls ( optional )
+        // uploadControlsTable : the table template which will be used as template for the file info dashboard ( optional )
+        'uploadControlsTable' : uploadGuard.globals.table,
+        // populateDashboardFrom : url from where to populate the dashboard with already existing data ( onpageload )
+        // e.g. which file were uploaded so far ( data-populate-from data attribute will bind stronger )
+        'populateDashboardFrom' : '/populate2'
+        // uploadControlsTableWrapper : into which html dom element to add the controls ( optional )
         //'uploadControlsTableWrapper' : '#drop_zone_info' 
     }
 }
@@ -138,9 +153,10 @@ Modernizr.load([
     var thisPlugin = {};
     var defaults = {
         url: null,
-        fileCheckPath: null,
         uniqId : null,
-        dashboard : {}  // filelist & controls table structure
+        fileCheckPath: null,
+        dashboard : {},  // filelist & controls table structure
+        populateDashboardFrom: null
     };
 
     function Plugin(element, options) {
@@ -173,6 +189,7 @@ Modernizr.load([
 
             if( $(this.element).data('upload') ) { this.options.url = $(this.element).data('upload'); }
             if( $(this.element).data('filecheck-path') ) { this.options.fileCheckPath = $(this.element).data('filecheck-path'); }
+            if( $(this.element).data('populate-from') ) { this.options.populateDashboardFrom = $(this.element).data('populate-from'); }
             this.options.uniqId = this.generateUniqeId();
             $(this.element).addClass( 'ug_' + this.options.uniqId ); // setting ug_{uniqId} css class
         },
@@ -212,7 +229,7 @@ Modernizr.load([
                     $(this.element)
                         .next('table')
                         .wrap('<div class="ugt_' + this.options.uniqId + '" />'); // setting ugt_{uniqId} css class
-                    }
+                }
             }
 
             this.tableAnalyzr();
@@ -226,8 +243,9 @@ Modernizr.load([
             var that = this;
             $( '.ugt_' + this.options.uniqId + ' table th' ).each( function( i, item ) {
                 var data = $( item ).data().name;
-                var item = '_'+i;
+                //var item = '_'+i;
                 that.options.dashboard[i] = {
+                    'td' : i,
                     'data' : data
                 };
             });
@@ -235,16 +253,20 @@ Modernizr.load([
         },
         populateHtmlControls : function() {
 
-            if( $(this.element).data('populate-from') ) {
-                that = this;
+            if( this.options.populateDashboardFrom ) {
+                var that = this;
 
                 // fetch data from [data-populate-from]
-                $.getJSON( $(this.element).data('populate-from'), function( data ) {
+                $.getJSON( this.options.populateDashboardFrom, function( data ) {
 
+                    console.log( that.options.uniqId );
+                    
+                    var $table = $( '.ugt_' + that.options.uniqId + ' table' );
                     // populate table rows with the fetched data
                     $.each( data, function( key, val ) {
 
-                        $( '.ugt_' + that.options.uniqId + ' table' )
+                        //if( $table.length > 0 ) {
+                        $table
                             .append(
                                 '<tr>'
                                     +'<td>' + val.thumbnail + '</td>'
@@ -253,6 +275,7 @@ Modernizr.load([
                                     +'<td>' + val.size + '</td>'
                                 +'</tr>'
                             );
+                        //}
                     });
                 });
             }

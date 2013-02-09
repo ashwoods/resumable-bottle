@@ -56,6 +56,14 @@ def index():
             { 'thumbnail':'http://dummyimage.com/30x30/000/fff', 'name':'testfile_three', 'size':'442', 'type':'png' }]
     return dumps(ret)
 
+@app.get('/populate2')
+def index():
+    response.content_type = 'application/json'
+    ret = [ { 'thumbnail':'http://dummyimage.com/30x30/000/fff', 'name':'testfile_2_one', 'size':'13', 'type':'jpg' },
+            { 'thumbnail':'http://dummyimage.com/30x30/000/fff', 'name':'testfile_2_two', 'size':'342', 'type':'png' },
+            { 'thumbnail':'http://dummyimage.com/30x30/000/fff', 'name':'testfile_2_three', 'size':'42', 'type':'png' }]
+    return dumps(ret)
+
 @app.route('/js/:path#.+#', name='js')
 def static(path):
     return static_file(path, root='js')
