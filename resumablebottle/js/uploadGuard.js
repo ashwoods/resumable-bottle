@@ -2,8 +2,8 @@
  *  uploadGuard.js
  *  Adrian Soluch 2013, adrian@soluch.at
  *
- *  All options may be passed via plugin options and data attributes
- *  whereby data attributes will always override plugin options.
+ *  All options may be passed via plugin options as also data attributes
+ *  whereby data attributes will always override the equivalent plugin options.
  *
  *  html data options :
  *  ******************
@@ -18,7 +18,7 @@
  *                          possible features : thumbnail, name, type, size
  *
  *
- *  Unique ID overview :
+ *  Unique IDs overview :
  *  ********************
  *  ug_{uniqId}     css class representng the dropzone
  *  ugt_{uniqId}    css class representing the upload data table
@@ -29,12 +29,9 @@
 
 var uploadGuard = {
     globals : {
-        // this var contains a string which 
-        // uploadprocess / plugin is gonna be used & is indispensable
-        uploader : false,
         // this table serves as template for all upload controls
         table : 
-            '<table class="dashboard">'
+            '<table class="someDashboardClass">'
                 +'<tr>'
                     +'<th>Something</th>'
                     +'<th data-name="thumbnail">Thumbnail</th>'
@@ -42,7 +39,8 @@ var uploadGuard = {
                     +'<th data-name="type">Filetype</th>'
                     +'<th data-name="size">Size</th>'
                 +'</tr>'
-            +'</table>'
+            +'</table>',
+        resumableJsLoad : ['js/resumable.js','js/spark-md5.min.js','js/jquery.knob.js','css/uploadGuard.css']
     }
 };
 
@@ -106,7 +104,8 @@ Modernizr.load([
     },
     {
         test : testForResumableJs,  // resumable.js
-        yep : ['js/resumable.js','js/spark-md5.min.js', 'js/jquery.knob.js','css/uploadGuard.css'],
+        //yep : ['js/resumable.js','js/spark-md5.min.js', 'js/jquery.knob.js','css/uploadGuard.css'],
+        yep : uploadGuard.globals.resumableJsLoad,
         callback: function( url, result, key ) {
             // callback method gets called after every ( yep & nope ) action!
             if( ! uploadGuard.globals.uploader ) {
@@ -117,7 +116,6 @@ Modernizr.load([
             // "complete" callback will be executed after all tests done & file downloading completed
             if( uploadGuard.globals.uploader === 'resumableJs' ) {
                 // initializing the main upload plugin
-                            console.log( uploadGuard.globals.init_options );
                 $('#loading_area').css('background-image', 'none');
                 //$('[data-upload]').css({'visibility':'visible'}).uploadGuard({'uploader':uploadGuard.globals.uploader});
                 $('[data-upload]')
@@ -259,24 +257,31 @@ Modernizr.load([
                 // fetch data from [data-populate-from]
                 $.getJSON( this.options.populateDashboardFrom, function( data ) {
 
-                    console.log( that.options.uniqId );
-                    
                     var $table = $( '.ugt_' + that.options.uniqId + ' table' );
-                    // populate table rows with the fetched data
-                    $.each( data, function( key, val ) {
 
-                        //if( $table.length > 0 ) {
-                        $table
-                            .append(
-                                '<tr>'
-                                    +'<td>' + val.thumbnail + '</td>'
-                                    +'<td>' + val.name + '</td>'
-                                    +'<td>' + val.type + '</td>'
-                                    +'<td>' + val.size + '</td>'
-                                +'</tr>'
-                            );
-                        //}
-                    });
+                    if( $table.length > 0 ) {
+                        // populate rows with the fetched data & append to the dashboard table
+                        $.each( data, function( key, val ) {
+
+                            // building a dashboard table row 
+                            var appendTr = '<tr>';
+                            $.each( that.options.dashboard, function( key_td, val_td ) {
+
+                                appendTr += '<td>';
+                                if( val_td.data ) {
+                                    // appending data to table td when existing and matching
+                                    appendTr += val[val_td.data];
+                                } 
+                                appendTr += '</td>';
+                            });
+                            appendTr += '</tr>';
+
+                            $table
+                                .append(
+                                    appendTr
+                                );
+                        });
+                    }
                 });
             }
         },
