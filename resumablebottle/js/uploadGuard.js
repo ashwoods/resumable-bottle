@@ -295,7 +295,7 @@ Modernizr.load([
                         $.each( data, function( key, val ) {
 
                             // building a dashboard table row 
-                            var appendTr = '<tr>';
+                            /*var appendTr = '<tr>';
                             $.each( that.options.dashboard, function( key_td, val_td ) {
 
                                 appendTr += '<td>';
@@ -305,7 +305,13 @@ Modernizr.load([
                                 } 
                                 appendTr += '</td>';
                             });
-                            appendTr += '</tr>';
+                            appendTr += '</tr>';*/
+
+                            // building a dashboard table row 
+                            var data = {
+                                val : val
+                            };
+                            var appendTr = that.generateTableRow( data );
 
                             $table
                                 .append(
@@ -313,7 +319,7 @@ Modernizr.load([
                                 );
                         });
 
-                        // dataTable jQuery plugin support ( http://www.datatables.net/ )
+                        // dataTable jQuery plugin support if possible ( http://www.datatables.net/ )
                         if( jQuery().dataTable ) {
                             $table.dataTable();
                         }
@@ -324,6 +330,40 @@ Modernizr.load([
         generateUniqeId : function() {
 
             return Math.floor(Math.random()*1000000);
+        },
+        generateTableRow : function( data ) {
+
+                               console.log(data);
+                               
+            // dashboard table row rendering method
+            //*************************************
+            var that = this;
+            var tr = '<tr>';
+            $.each( this.options.dashboard, function( key_td, val_td ) {
+
+                tr += ( ( data.uniqueIdentifier ) ? '<td id="ugf_' + data.uniqueIdentifier + '" >' : '<td>' );
+                if( val_td.data ) {
+                    // appending data to table td when existing and matching
+                    if( data.val[val_td.data] ) {
+                        tr += data.val[val_td.data];
+                    }
+                    else {
+                        // knob upload progress on the same position as the thumbnail 
+                        // which gets exchanged after the upload is finished
+                        tr += '<input'
+                                +' type="text"'
+                                +' value="0" '
+                                +' data-width="' + that.options.knob.data_width + '" '
+                                +' data-height="' + that.options.knob.data_height + '" '
+                                +' data-fgColor="' + data.knob.fgColor + '"'
+                                +' class="progressbar_' + data.uniqueIdentifier + '">'
+                    }
+                } 
+                tr += '</td>';
+            });
+            tr += '</tr>';
+
+            return tr;
         },
         resumableJs : {
 
@@ -354,7 +394,25 @@ Modernizr.load([
 
                     var fgColor = ( ( that.options.knob.data_fgColor ) ?  that.options.knob.data_fgColor : '#' + Math.floor(Math.random()*16777215).toString(16) );
 
+                    var data = {
+                        uniqueIdentifier : file.uniqueIdentifier,
+                        val : {
+                            name : file.fileName,
+                            size : file.size,
+                            type : file.file.type
+                        },
+                        knob : {
+                            fgColor : fgColor
+                        }
+                    };
+                    var appendTr = that.generateTableRow( data );
+                    //console.log( appendTr );
+
                     $( '.ugt_' + that.options.uniqId + ' table' )
+                        .append( appendTr );
+
+
+                    /*$( '.ugt_' + that.options.uniqId + ' table' )
                         .append('<tr id="ugf_' + file.uniqueIdentifier + '">'
                                     +'<td>'
                                         +'<input'
@@ -368,7 +426,7 @@ Modernizr.load([
                                     +'<td>' + file.fileName + '</td>'
                                     +'<td>' + file.file.type + '</td>'
                                     +'<td>' + file.size + '</td>'
-                                +'</tr>');
+                                +'</tr>');*/
 
                     $( '.progressbar_' + file.uniqueIdentifier ).knob();
 
