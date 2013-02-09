@@ -5,8 +5,9 @@
  *  All options may be passed via plugin options as also data attributes
  *  whereby data attributes will always override the equivalent plugin options.
  *
+ *
  *  html data options :
- *  ******************
+ *  *******************
  *  data-drop-zone          this determines the element used as drop zone for resumable.js drag & drop
  *  data-upload             url whereto upload files
  *  data-populate-from      url from where to populate with existing data ( onpageload ), e.g. which file were uploaded so far
@@ -14,14 +15,18 @@
  *  data-browse-button      element which should be used for file browsing ( optional )
  *
  *
- *  dashboard table data options ( uploadGuard.globals.table ) :
- *  ************************************************************
+ *  dashboard table ( uploadGuard.globals.table ) :
+ *  ***********************************************
+ *  The dashboard table specifies the structure of the data container where all information about previous and current uploads is shown.
+ *  It's structure should remain as in the example, since it gets extracted for further usage.
+ *
+ *  dashboard table data options :
  *  data-name               for the display order of dashboard elements
  *                          possible features : thumbnail, name, type, size
  *
  *
  *  Unique IDs overview :
- *  ********************
+ *  *********************
  *  ug_{uniqId}     css class representng the dropzone
  *  ugt_{uniqId}    css class representing the upload data table
  *  ugf_{uniqueId}  unique file identifier
@@ -61,7 +66,7 @@ var uploadGuardInitOptions = function() {
         // uploadControlsTable : the table template which will be used as template for the file info dashboard ( optional )
         'uploadControlsTable' : uploadGuard.globals.table,
         // populateDashboardFrom : url from where to populate the dashboard with already existing data ( onpageload )
-        // e.g. which file were uploaded so far ( data-populate-from data attribute will bind stronger )
+        // e.g. which files were uploaded so far ( data-populate-from data attribute will bind stronger )
         'populateDashboardFrom' : '/populate2',
         // uploadControlsTableWrapper : into which html dom element to add the controls ( optional )
         //'uploadControlsTableWrapper' : '#drop_zone_info', 
