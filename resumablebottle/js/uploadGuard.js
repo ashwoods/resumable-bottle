@@ -34,15 +34,17 @@ var uploadGuard = {
         // this table serves as template for all upload controls
         table : 
             '<table class="someDashboardClass">'
-                +'<tr>'
-                    +'<th>Something</th>'
-                    +'<th data-name="thumbnail">Thumbnail</th>'
-                    +'<th data-name="name">Name</th>'
-                    +'<th data-name="type">Filetype</th>'
-                    +'<th data-name="size">Size</th>'
-                +'</tr>'
+                +'<thead>'
+                    +'<tr>'
+                        +'<th>Something</th>'
+                        +'<th data-name="thumbnail">Thumbnail</th>'
+                        +'<th data-name="name">Name</th>'
+                        +'<th data-name="type">Filetype</th>'
+                        +'<th data-name="size">Size</th>'
+                    +'</tr>'
+                +'</thead>'
             +'</table>',
-        resumableJsLoad : ['js/resumable.js','js/spark-md5.min.js','js/jquery.knob.js','css/uploadGuard.css']
+        resumableJsLoad : ['js/resumable.js','js/spark-md5.min.js','js/jquery.knob.js','css/uploadGuard.css'/*,'//cdnjs.cloudflare.com/ajax/libs/datatables/1.9.4/jquery.dataTables.min.js '*/]
     }
 };
 
@@ -62,7 +64,13 @@ var uploadGuardInitOptions = function() {
         // e.g. which file were uploaded so far ( data-populate-from data attribute will bind stronger )
         'populateDashboardFrom' : '/populate2',
         // uploadControlsTableWrapper : into which html dom element to add the controls ( optional )
-        //'uploadControlsTableWrapper' : '#drop_zone_info' 
+        //'uploadControlsTableWrapper' : '#drop_zone_info', 
+        // knob upload progress options ( optional )
+        'knob' : {
+            data_width : 35,
+            data_height : 35
+            //data_fgColor : 'red'
+        }
     }
 }
 
@@ -156,7 +164,11 @@ Modernizr.load([
         uniqId : null,
         fileCheckPath: null,
         dashboard : {},  // filelist & controls table structure
-        populateDashboardFrom: null
+        populateDashboardFrom: null,
+        knob : {
+            data_width : 40,
+            data_height : 40,
+        }
     };
 
     function Plugin(element, options) {
@@ -285,6 +297,11 @@ Modernizr.load([
                                     appendTr
                                 );
                         });
+
+                        // dataTable jQuery plugin support ( http://www.datatables.net/ )
+                        if( jQuery().dataTable ) {
+                            $table.dataTable();
+                        }
                     }
                 });
             }
@@ -320,6 +337,12 @@ Modernizr.load([
                //$( '.resumable-file-'+file.uniqueIdentifier+' .resumable-file-name' ).html( file.fileName + ' ' + bytesToSize( file.size, 2 ) + ' <br>' );
                 //$('#assets').addTableLine( 'resumable-file-'+file.uniqueIdentifier, file );
 
+                    if( that.options.knob.data_fgColor ) {
+                        var fgColor = that.options.knob.data_fgColor;
+                    }
+                    else {
+                        var fgColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+                    }
 
                     $( '.ugt_' + that.options.uniqId + ' table' )
                         .append('<tr id="ugf_' + file.uniqueIdentifier + '">'
@@ -327,9 +350,9 @@ Modernizr.load([
                                         +'<input'
                                             +' type="text"'
                                             +' value="0" '
-                                            +' data-width="45" '
-                                            +' data-height="45" '
-                                            +' data-fgColor="#' + Math.floor(Math.random()*16777215).toString(16) + '"'
+                                            +' data-width="' + that.options.knob.data_width + '" '
+                                            +' data-height="' + that.options.knob.data_height + '" '
+                                            +' data-fgColor="' + fgColor + '"'
                                             +' class="progressbar_' + file.uniqueIdentifier + '">'
                                     +'</td>'
                                     +'<td>' + file.fileName + '</td>'
