@@ -1,10 +1,18 @@
 /*
  *  uploadGuard.js
- *  Adrian Soluch, adrian@soluch.at
+ *  Adrian Soluch 2013, adrian@soluch.at
  *
  *  ug_{uniqId}     css class representng the dropzone
  *  ugt_{uniqId}    css class representing the upload data table
  *  ugf_{uniqueId}  unique file identifier
+ *
+ *  html data options :
+ *  data-populate-from      url from where to populate with existing data ( onpageload ), e.g. which file were uploaded so far
+ *  data-upload             url whereto upload files
+ *
+ *  dashboard table data options ( uploadGuard.globals.table ) :
+ *  data-name               for the display order of dashboard elements
+ *                          possible features : thumbnail, name, type, size
  */
 
 
@@ -34,7 +42,7 @@ var uploadGuardInitOptions = function() {
         'uploader' : uploadGuard.globals.uploader, 
         // upload path / URL ( [data-upload] will be preferred - required )
         'url' : '/upload',
-        // when checking a file on the server, which URL to use ( optional )
+        // when checking a file on the server, which URL to use ( optional, also possible through data-filecheck-path data attribute, which will bind stronger )
         'fileCheckPath' : '/check',
         // the table template which will be used as template for the file info dashboard ( optional )
         'uploadControlsTable' : uploadGuard.globals.table
@@ -164,7 +172,8 @@ Modernizr.load([
         setExtraOptions : function() {
 
             if( $(this.element).data('upload') ) { this.options.url = $(this.element).data('upload'); }
-            this.options.uniqId = this.generateUniqId();
+            if( $(this.element).data('filecheck-path') ) { this.options.fileCheckPath = $(this.element).data('filecheck-path'); }
+            this.options.uniqId = this.generateUniqeId();
             $(this.element).addClass( 'ug_' + this.options.uniqId ); // setting ug_{uniqId} css class
         },
         checkForFileExistence : function( fileData ) {
@@ -222,6 +231,7 @@ Modernizr.load([
                     'data' : data
                 };
             });
+            //console.log( that.options );
         },
         populateHtmlControls : function() {
 
@@ -247,7 +257,7 @@ Modernizr.load([
                 });
             }
         },
-        generateUniqId : function() {
+        generateUniqeId : function() {
 
             return Math.floor(Math.random()*1000000);
         },
