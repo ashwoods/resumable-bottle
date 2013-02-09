@@ -55,13 +55,13 @@ TD{font-family: Arial, Helvetica, sans-serif; font-size: 8pt;}
 <body>
     <div id="content">
         <div id="loading_area">
-            <div id="drop_zone" class="drop_zones" data-upload="/upload" data-filecheck-path="/check" data-populate-from="/populate" >
-                Drop files here or <a href="#" id="browsebutton">click to open file browser</a>
+            <div id="drop_zone" class="drop_zones" data-drop-zone="here" data-upload="/upload" data-filecheck-path="/check" data-populate-from="/populate" >
+                Drop files here or <a href="#" id="browsebutton" data-browse-button="here" >click to open file browser</a>
             </div>
             <div id="drop_zone_info">
             </div>
-            <div id="drop_zone2" class="drop_zones" data-upload="/upload2" data-filecheck-path="/check2" >
-                Drop files here or <a href="#" id="browsebutton2">click to open file browser</a>
+            <div id="drop_zone2" class="drop_zones" data-drop-zone="here" data-upload="/upload2" data-filecheck-path="/check2" >
+                Drop files here or <a href="#" id="browsebutton2" data-browse-button="here" >click to open file browser</a>
             </div>
         </div>
     </div>

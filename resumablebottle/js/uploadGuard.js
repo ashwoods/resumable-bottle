@@ -7,9 +7,11 @@
  *
  *  html data options :
  *  ******************
+ *  data-drop-zone          this determines the element used as drop zone for resumable.js drag & drop
  *  data-upload             url whereto upload files
  *  data-populate-from      url from where to populate with existing data ( onpageload ), e.g. which file were uploaded so far
  *  data-filecheck-path     url to use when checking a particular file on the server
+ *  data-browse-button      element which should be used for file browsing ( optional )
  *
  *
  *  dashboard table data options ( uploadGuard.globals.table ) :
@@ -58,7 +60,7 @@ var uploadGuardInitOptions = function() {
         'uploadControlsTable' : uploadGuard.globals.table,
         // populateDashboardFrom : url from where to populate the dashboard with already existing data ( onpageload )
         // e.g. which file were uploaded so far ( data-populate-from data attribute will bind stronger )
-        'populateDashboardFrom' : '/populate2'
+        'populateDashboardFrom' : '/populate2',
         // uploadControlsTableWrapper : into which html dom element to add the controls ( optional )
         //'uploadControlsTableWrapper' : '#drop_zone_info' 
     }
@@ -94,7 +96,7 @@ Modernizr.load([
             if( uploadGuard.globals.uploader === 'FileReader' ) {
                 $('#loading_area').css('background-image', 'none');
                 //$('.drop_zones')
-                $('[data-upload]')
+                $('[data-drop-zone]')
                     .css({'visibility':'visible'})
                     .uploadGuard(
                         uploadGuardInitOptions()
@@ -118,7 +120,7 @@ Modernizr.load([
                 // initializing the main upload plugin
                 $('#loading_area').css('background-image', 'none');
                 //$('[data-upload]').css({'visibility':'visible'}).uploadGuard({'uploader':uploadGuard.globals.uploader});
-                $('[data-upload]')
+                $('[data-drop-zone]')
                     .css({'visibility':'visible'})
                     .uploadGuard(
                         uploadGuardInitOptions()
@@ -237,17 +239,19 @@ Modernizr.load([
         },
         tableAnalyzr : function() {
             // generating a template for the table td's & 
-            // data bindings for populating the dashboard with file data
-            var that = this;
+            // data bindings in order to populate the dashboard with file data
+            var 
+                that = this,
+                data;
+
             $( '.ugt_' + this.options.uniqId + ' table th' ).each( function( i, item ) {
-                var data = $( item ).data().name;
-                //var item = '_'+i;
+
+                data = $( item ).data().name;
                 that.options.dashboard[i] = {
                     'td' : i,
                     'data' : data
                 };
             });
-            //console.log( that.options );
         },
         populateHtmlControls : function() {
 
@@ -297,7 +301,19 @@ Modernizr.load([
                 });
 
                 thisPlugin = that;
+
+                //var drop_zone = $(that.element).data('drop-zone');
+                //console.log( drop_zone);
+                //r.assignDrop( drop_zone );
+                //
                 r.assignDrop( $(that.element) );
+
+                // assigning a browse button
+                var browse_button = $(that.element).find('[data-browse-button]');
+                if( browse_button.length !== 0 ) {
+                    r.assignBrowse( $(browse_button) );
+                }
+
                 r.on('fileAdded', function(file) {
 
                //$( '.resumable-list' ).append( '<li class="resumable-file-'+file.uniqueIdentifier+'">Uploading <span class="resumable-file-name"></span> <span class="resumable-file-progress"></span>' );
