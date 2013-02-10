@@ -71,6 +71,11 @@ var uploadGuardInitOptions = function() {
         'populateDashboardFrom' : '/populate2',
         // uploadControlsTableWrapper : into which html dom element to add the controls ( optional )
         //'uploadControlsTableWrapper' : '#drop_zone_info', 
+        // setting extra options for the resumable.js object, target will be overwritten by the "url" parameter ( optional )
+        'resumableJsOptions' : {
+            'chunkSize' : 4*1024*1024, // 4mb
+            'simultaneousUploads' : 5
+        },
         // knob upload progress options ( optional )
         'knob' : {
             data_width : 35,
@@ -177,6 +182,15 @@ Modernizr.load([
         fileCheckPath: null,
         dashboard : {},  // filelist & controls table structure
         populateDashboardFrom: null,
+        resumableJsOptions : {
+            //headers: {"X-CSRFToken": ""},
+            //target:'/upload/',
+            //query:{project_id:'{{ project.id }}'},
+            target : null,
+            chunkSize : 2*1024*1024, // 2mb
+            simultaneousUploads : 4,
+            throttleProgressCallbacks : 1 
+        },
         knob : {
             data_width : 40,
             data_height : 40,
@@ -214,11 +228,17 @@ Modernizr.load([
         },
         setExtraOptions : function() {
 
-            if( $(this.element).data('upload') ) { this.options.url = $(this.element).data('upload'); }
+            if( $(this.element).data('upload') ) { 
+                this.options.url = $(this.element).data('upload'); 
+                this.options.resumableJsOptions.target = $(this.element).data('upload'); 
+            }
             if( $(this.element).data('filecheck-path') ) { this.options.fileCheckPath = $(this.element).data('filecheck-path'); }
             if( $(this.element).data('populate-from') ) { this.options.populateDashboardFrom = $(this.element).data('populate-from'); }
             this.options.uniqId = this.generateUniqeId();
             $(this.element).addClass( 'ug_' + this.options.uniqId ); // setting ug_{uniqId} css class
+
+            //console.log( this.options );
+            
         },
         checkForFileExistence : function( fileData ) {
 
@@ -237,6 +257,10 @@ Modernizr.load([
                     }
                 },
             });
+        },
+        generateUniqeId : function() {
+
+            return Math.floor(Math.random()*1000000);
         },
         initHtmlControls : function() {
 
@@ -327,14 +351,8 @@ Modernizr.load([
                 });
             }
         },
-        generateUniqeId : function() {
-
-            return Math.floor(Math.random()*1000000);
-        },
         generateTableRow : function( data ) {
 
-                               console.log(data);
-                               
             // dashboard table row rendering method
             //*************************************
             var that = this;
@@ -368,9 +386,17 @@ Modernizr.load([
         resumableJs : {
 
             init : function( that ) {
-                var r = new Resumable({
-                    target: that.options.url
-                });
+
+                // a separate resumable.js options object literal has to be created,
+                // otherwise the settings will be messed up
+                var options = {
+                    target : that.options.url
+                };
+                jQuery.extend( options, that.options.resumableJsOptions );
+                
+                var r = new Resumable(
+                    options
+                );
 
                 thisPlugin = that;
 
