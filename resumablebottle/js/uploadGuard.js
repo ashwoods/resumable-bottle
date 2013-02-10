@@ -6,8 +6,8 @@
  *  whereby data attributes will always override the equivalent plugin options.
  *
  *
- *  html data options :
- *  *******************
+ *  html5 data attributes/options :
+ *  *******************************
  *  data-drop-zone          this determines the element used as drop zone for resumable.js drag & drop
  *  data-upload             url whereto upload files
  *  data-populate-from      url from where to populate with existing data ( onpageload ), e.g. which file were uploaded so far
@@ -49,7 +49,7 @@ var uploadGuard = {
                     +'</tr>'
                 +'</thead>'
             +'</table>',
-        resumableJsLoadfiles : ['js/resumable.js','js/spark-md5.min.js','js/jquery.knob.js','css/uploadGuard.css'/*,'//cdnjs.cloudflare.com/ajax/libs/datatables/1.9.4/jquery.dataTables.min.js '*/],
+        resumableJsLoadfiles : ['js/resumable.js','js/spark-md5.min.js','js/jquery.knob.js','css/uploadGuard.css','//cdnjs.cloudflare.com/ajax/libs/datatables/1.9.4/jquery.dataTables.min.js '],
         pluploadLoadfiles : ['js/plupload/plupload.full.js','js/plupload/plupload.browserplus.js','js/plupload/jquery.plupload.queue.js']
     }
 };
@@ -59,7 +59,7 @@ var uploadGuard = {
 var uploadGuardInitOptions = function() {
     return {
         // "FileReader", "resumableJs" or "plupload" ( required )
-        'uploader' : uploadGuard.globals.uploader, 
+        'uploader' : uploadGuard.globals.uploader,
         // upload path / URL ( [data-upload] will be preferred - required )
         'url' : '/upload',
         // when checking a file on the server, which URL to use ( optional, also possible through data-filecheck-path data attribute, which will bind stronger )
@@ -81,7 +81,9 @@ var uploadGuardInitOptions = function() {
             data_width : 35,
             data_height : 35
             //data_fgColor : 'red'
-        }
+        },
+        // set whether to use dataTables or not ( optional, default : false, http://www.datatables.net/ )
+        //'dataTablesActive' : true
     }
 }
 
@@ -182,6 +184,7 @@ Modernizr.load([
         fileCheckPath: null,
         dashboard : {},  // filelist & controls table structure
         populateDashboardFrom: null,
+        dataTablesActive : false,
         resumableJsOptions : {
             //headers: {"X-CSRFToken": ""},
             //target:'/upload/',
@@ -289,6 +292,7 @@ Modernizr.load([
             this.populateHtmlControls();
         },
         tableAnalyzr : function() {
+
             // generating a template for the table td's & 
             // data bindings in order to populate the dashboard with file data
             var 
@@ -303,6 +307,13 @@ Modernizr.load([
                     'data' : data
                 };
             });
+        },
+        initDataTables : function( table ) {
+
+            // dataTable jQuery plugin support when possible ( http://www.datatables.net/ )
+            if( jQuery().dataTable && this.options.dataTablesActive ) {
+                table.dataTable(); // TODO : passing options
+            }
         },
         populateHtmlControls : function() {
 
@@ -343,10 +354,8 @@ Modernizr.load([
                                 );
                         });
 
-                        // dataTable jQuery plugin support if possible ( http://www.datatables.net/ )
-                        if( jQuery().dataTable ) {
-                            $table.dataTable();
-                        }
+                        // dataTables jQuery plugin
+                        that.initDataTables( $table );
                     }
                 });
             }
@@ -414,10 +423,6 @@ Modernizr.load([
 
                 r.on('fileAdded', function(file) {
 
-               //$( '.resumable-list' ).append( '<li class="resumable-file-'+file.uniqueIdentifier+'">Uploading <span class="resumable-file-name"></span> <span class="resumable-file-progress"></span>' );
-               //$( '.resumable-file-'+file.uniqueIdentifier+' .resumable-file-name' ).html( file.fileName + ' ' + bytesToSize( file.size, 2 ) + ' <br>' );
-                //$('#assets').addTableLine( 'resumable-file-'+file.uniqueIdentifier, file );
-
                     var fgColor = ( ( that.options.knob.data_fgColor ) ?  that.options.knob.data_fgColor : '#' + Math.floor(Math.random()*16777215).toString(16) );
 
                     var data = {
@@ -437,23 +442,6 @@ Modernizr.load([
                     $( '.ugt_' + that.options.uniqId + ' table' )
                         .append( appendTr );
 
-
-                    /*$( '.ugt_' + that.options.uniqId + ' table' )
-                        .append('<tr id="ugf_' + file.uniqueIdentifier + '">'
-                                    +'<td>'
-                                        +'<input'
-                                            +' type="text"'
-                                            +' value="0" '
-                                            +' data-width="' + that.options.knob.data_width + '" '
-                                            +' data-height="' + that.options.knob.data_height + '" '
-                                            +' data-fgColor="' + fgColor + '"'
-                                            +' class="progressbar_' + file.uniqueIdentifier + '">'
-                                    +'</td>'
-                                    +'<td>' + file.fileName + '</td>'
-                                    +'<td>' + file.file.type + '</td>'
-                                    +'<td>' + file.size + '</td>'
-                                +'</tr>');*/
-
                     $( '.progressbar_' + file.uniqueIdentifier ).knob();
 
                     r.upload();
@@ -462,6 +450,18 @@ Modernizr.load([
                 r.on( 'fileProgress', function( file ) {
                     // Handle progress for both the file and the overall upload
                     $( '.progressbar_' + file.uniqueIdentifier ).val( Math.floor( file.progress()*100 ) ).trigger('change');
+                });
+
+                r.on( 'fileSuccess', function( file, message ) {
+                    // Reflect that a particular file upload has completed
+                });
+
+                r.on( 'fileError', function( file, message ) {
+                    // Reflect that a particular file upload has resulted in an error
+                });
+
+                r.on('complete', function() {
+                    // Reflect that a all uploads are completed
                 });
             }
         },
