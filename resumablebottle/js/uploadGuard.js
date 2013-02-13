@@ -37,6 +37,7 @@
 var uploadGuard = {
     globals : {
         // this table serves as template for all upload controls
+        // possible data-name features : thumbnail, name, type, size
         table : 
             '<table class="someDashboardClass">'
                 +'<thead>'
@@ -49,7 +50,7 @@ var uploadGuard = {
                     +'</tr>'
                 +'</thead>'
             +'</table>',
-        resumableJsLoadfiles : ['js/resumable.js','js/spark-md5.min.js','js/jquery.knob.js','css/uploadGuard.css','//cdnjs.cloudflare.com/ajax/libs/datatables/1.9.4/jquery.dataTables.min.js '],
+        resumableJsLoadfiles : ['js/resumable.js','js/spark-md5.min.js','js/jquery.knob.js','css/uploadGuard.css'/*,'//cdnjs.cloudflare.com/ajax/libs/datatables/1.9.4/jquery.dataTables.min.js'*/],
         pluploadLoadfiles : ['js/plupload/plupload.full.js','js/plupload/plupload.browserplus.js','js/plupload/jquery.plupload.queue.js']
     }
 };
@@ -71,6 +72,8 @@ var uploadGuardInitOptions = function() {
         'populateDashboardFrom' : '/populate2',
         // uploadControlsTableWrapper : into which html dom element to add the controls ( optional )
         //'uploadControlsTableWrapper' : '#drop_zone_info', 
+        // dataTablesActive : set whether to use dataTables or not ( optional, default : false, http://www.datatables.net/ )
+        //'dataTablesActive' : true
         // setting extra options for the resumable.js object, target will be overwritten by the "url" parameter ( optional )
         'resumableJsOptions' : {
             'chunkSize' : 4*1024*1024, // 4mb
@@ -82,8 +85,6 @@ var uploadGuardInitOptions = function() {
             data_height : 35
             //data_fgColor : 'red'
         },
-        // set whether to use dataTables or not ( optional, default : false, http://www.datatables.net/ )
-        //'dataTablesActive' : true
     }
 }
 
@@ -126,7 +127,7 @@ Modernizr.load([
         }
     },
     {
-        test : testForResumableJs,  // resumable.js
+        test : ! testForResumableJs,  // resumable.js
         //yep : ['js/resumable.js','js/spark-md5.min.js', 'js/jquery.knob.js','css/uploadGuard.css'],
         yep : uploadGuard.globals.resumableJsLoadfiles,
         callback: function( url, result, key ) {
@@ -150,7 +151,7 @@ Modernizr.load([
         }
     },
     {
-        test : ! testForResumableJs,    // plupload
+        test : testForResumableJs,    // plupload
         yep : uploadGuard.globals.pluploadLoadfiles,
         callback: function( url, result, key ) {
             // callback method gets called after every ( yep, nope ) action!
@@ -330,19 +331,6 @@ Modernizr.load([
                         $.each( data, function( key, val ) {
 
                             // building a dashboard table row 
-                            /*var appendTr = '<tr>';
-                            $.each( that.options.dashboard, function( key_td, val_td ) {
-
-                                appendTr += '<td>';
-                                if( val_td.data ) {
-                                    // appending data to table td when existing and matching
-                                    appendTr += val[val_td.data];
-                                } 
-                                appendTr += '</td>';
-                            });
-                            appendTr += '</tr>';*/
-
-                            // building a dashboard table row 
                             var data = {
                                 val : val
                             };
@@ -409,10 +397,6 @@ Modernizr.load([
 
                 thisPlugin = that;
 
-                //var drop_zone = $(that.element).data('drop-zone');
-                //console.log( drop_zone);
-                //r.assignDrop( drop_zone );
-                //
                 r.assignDrop( $(that.element) );
 
                 // assigning a browse button
@@ -423,7 +407,7 @@ Modernizr.load([
 
                 r.on('fileAdded', function(file) {
 
-                    var fgColor = ( ( that.options.knob.data_fgColor ) ?  that.options.knob.data_fgColor : '#' + Math.floor(Math.random()*16777215).toString(16) );
+                    var fgColor = ( ( that.options.knob.data_fgColor ) ? that.options.knob.data_fgColor : '#' + Math.floor(Math.random()*16777215).toString(16) );
 
                     var data = {
                         uniqueIdentifier : file.uniqueIdentifier,
@@ -437,7 +421,6 @@ Modernizr.load([
                         }
                     };
                     var appendTr = that.generateTableRow( data );
-                    //console.log( appendTr );
 
                     $( '.ugt_' + that.options.uniqId + ' table' )
                         .append( appendTr );
@@ -468,6 +451,27 @@ Modernizr.load([
         plupload : {
 
             init : function( that ) {
+
+                //console.log( $(that.element).find('[data-browse-button]') );
+
+                var uploader = new plupload.Uploader({
+                    //runtimes : 'html4',
+                    //runtimes : 'flash,silverlight,browserplus,html5,html4',
+                    runtimes : 'flash',
+                    //browse_button : $(that.element).find('[data-browse-button]'),
+                    browse_button : 'browsebutton',//$(that.element).find('[data-browse-button]'),
+                    //container : $(that.element),
+                    //container : 'drop_zone',//$(that.element),
+                    url : '/upload/',
+                    //headers: {"X-CSRFToken": "{{ csrf_token }}"},
+                    //multipart_params : {"X-CSRFToken": "{{ csrf_token }}"},
+                    //chunk_size : '2mb',
+                    flash_swf_url : 'js/plupload/plupload.flash.swf',
+                    //silverlight_xap_url : 'js/plupload/plupload.silverlight.xap'
+                });
+                //console.log( uploader );
+                
+                uploader.init();
             }
         },
         FileReaderInterface : {
