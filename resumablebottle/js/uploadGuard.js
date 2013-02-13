@@ -127,7 +127,7 @@ Modernizr.load([
         }
     },
     {
-        test : ! testForResumableJs,  // resumable.js
+        test : testForResumableJs,  // resumable.js
         //yep : ['js/resumable.js','js/spark-md5.min.js', 'js/jquery.knob.js','css/uploadGuard.css'],
         yep : uploadGuard.globals.resumableJsLoadfiles,
         callback: function( url, result, key ) {
@@ -151,7 +151,7 @@ Modernizr.load([
         }
     },
     {
-        test : testForResumableJs,    // plupload
+        test : ! testForResumableJs,    // plupload
         yep : uploadGuard.globals.pluploadLoadfiles,
         callback: function( url, result, key ) {
             // callback method gets called after every ( yep, nope ) action!
