@@ -53,7 +53,20 @@ def index():
     response.content_type = 'application/json'
     ret = [ { 'thumbnail':'http://dummyimage.com/30x30/000/fff', 'name':'testfile_one', 'size':'213', 'type':'jpg' },
             { 'thumbnail':'http://dummyimage.com/30x30/000/fff', 'name':'testfile_two', 'size':'5342', 'type':'png' },
-            { 'thumbnail':'http://dummyimage.com/30x30/000/fff', 'name':'testfile_three', 'size':'442', 'type':'png' }]
+            { 'thumbnail':'http://dummyimage.com/30x30/000/fff', 'name':'testfile_three', 'size':'442', 'type':'png' },
+            { "created": "2013-01-10T01:56:34.338489", 
+            "filetype": "image/jpeg", 
+            "id": "1", 
+            "md5": "9f68d2168c1ebb5b6368b7ed5b25aeb3", 
+            "modified": "2013-01-10T01:56:34.341322", 
+            "original_file": "null", 
+            "original_filename": "kitten.jpeg", 
+            "original_filesize": "124142", 
+            "project": "/projects/apiv1/projects/5093/", 
+            "resource_uri": "/projects/apiv1/asset/1/", 
+            "short_description": "", 
+            "url": "" }
+        ]
     return dumps(ret)
 
 @app.get('/populate2')

@@ -353,10 +353,13 @@ Modernizr.load([
             // dashboard table row rendering method
             //*************************************
             var that = this;
-            var tr = '<tr>';
+            var tr = ( ( data.uniqueIdentifier ) ? '<tr id="ugf_' + data.uniqueIdentifier + '" >' : '<tr>' );
+            //var tr = '<tr>';
+console.log( data );
             $.each( this.options.dashboard, function( key_td, val_td ) {
 
-                tr += ( ( data.uniqueIdentifier ) ? '<td id="ugf_' + data.uniqueIdentifier + '" >' : '<td>' );
+                //tr += ( ( data.uniqueIdentifier ) ? '<td id="ugf_' + data.uniqueIdentifier + '" >' : '<td>' );
+                tr += '<td>';
                 if( val_td.data ) {
                     // appending data to table td when existing and matching
                     if( data.val[val_td.data] ) {
