@@ -36,17 +36,20 @@
 
 var uploadGuard = {
     globals : {
-        // this table serves as template for all upload controls
-        // possible data-name features : thumbnail, name, type, size
+        // This table serves as a template for the dashboard & upload controls table.
+        // The table <th> data-names will serve as bindings to json attibutes with the same names.
+        // all possible data-name features : thumbnail, name, type, size
         table : 
             '<table class="someDashboardClass">'
                 +'<thead>'
                     +'<tr>'
                         +'<th>Something</th>'
-                        +'<th data-name="thumbnail">Thumbnail</th>'
-                        +'<th data-name="name">Name</th>'
-                        +'<th data-name="type">Filetype</th>'
-                        +'<th data-name="size">Size</th>'
+                        +'<th data-name="original_thumbnail" data-role="thumbnail" data-upload-progress="true">Thumbnail</th>'
+                        +'<th data-name="original_filename" data-role="name">Name</th>'
+                        +'<th data-name="filetype" data-role="type">Filetype</th>'
+                        +'<th data-name="original_filesize" data-role="size">Size</th>'
+                        +'<th data-name="created" data-role="created">created</th>'
+                        +'<th data-name="resource_uri" data-role="resource_uri">resource</th>'
                     +'</tr>'
                 +'</thead>'
             +'</table>',
@@ -298,14 +301,20 @@ Modernizr.load([
             // data bindings in order to populate the dashboard with file data
             var 
                 that = this,
-                data;
+                data,
+                identifier,
+                upload_progress;
 
             $( '.ugt_' + this.options.uniqId + ' table th' ).each( function( i, item ) {
 
-                data = $( item ).data().name;
+                data = $( item ).data().role;
+                identifier = $( item ).data().name;
+
                 that.options.dashboard[i] = {
                     'td' : i,
-                    'data' : data
+                    'data' : data,
+                    'identifier' : identifier,
+                    'upload_progress' : ( ( $( item ).data().uploadProgress ) ? true : false )
                 };
             });
         },
@@ -330,9 +339,12 @@ Modernizr.load([
                         // populate rows with the fetched data & append to the dashboard table
                         $.each( data, function( key, val ) {
 
+                            //console.log( val );
+                            
                             // building a dashboard table row 
                             var data = {
-                                val : val
+                                val : val,
+                                role : true
                             };
                             var appendTr = that.generateTableRow( data );
 
@@ -354,27 +366,34 @@ Modernizr.load([
             //*************************************
             var that = this;
             var tr = ( ( data.uniqueIdentifier ) ? '<tr id="ugf_' + data.uniqueIdentifier + '" >' : '<tr>' );
-            //var tr = '<tr>';
-console.log( data );
+
             $.each( this.options.dashboard, function( key_td, val_td ) {
 
-                //tr += ( ( data.uniqueIdentifier ) ? '<td id="ugf_' + data.uniqueIdentifier + '" >' : '<td>' );
                 tr += '<td>';
                 if( val_td.data ) {
+                
+                    if( data.role ) {
+                        if( data.val[val_td.identifier] ) {
+                            tr += data.val[val_td.identifier];
+                        }
+                    }
                     // appending data to table td when existing and matching
-                    if( data.val[val_td.data] ) {
+                    else if( data.val[val_td.data] ) {
                         tr += data.val[val_td.data];
                     }
+
                     else {
                         // knob upload progress on the same position as the thumbnail 
                         // which gets exchanged after the upload is finished
-                        tr += '<input'
-                                +' type="text"'
-                                +' value="0" '
-                                +' data-width="' + that.options.knob.data_width + '" '
-                                +' data-height="' + that.options.knob.data_height + '" '
-                                +' data-fgColor="' + data.knob.fgColor + '"'
-                                +' class="progressbar_' + data.uniqueIdentifier + '">'
+                        if( val_td.upload_progress ) {
+                            tr += '<input'
+                                    +' type="text"'
+                                    +' value="0" '
+                                    +' data-width="' + that.options.knob.data_width + '" '
+                                    +' data-height="' + that.options.knob.data_height + '" '
+                                    +' data-fgColor="' + data.knob.fgColor + '"'
+                                    +' class="progressbar_' + data.uniqueIdentifier + '">'
+                        }
                     }
                 } 
                 tr += '</td>';
@@ -424,11 +443,11 @@ console.log( data );
                         }
                     };
                     var appendTr = that.generateTableRow( data );
-
                     $( '.ugt_' + that.options.uniqId + ' table' )
                         .append( appendTr );
 
-                    $( '.progressbar_' + file.uniqueIdentifier ).knob();
+                    $( '.progressbar_' + file.uniqueIdentifier )
+                        .knob();
 
                     r.upload();
                 });
