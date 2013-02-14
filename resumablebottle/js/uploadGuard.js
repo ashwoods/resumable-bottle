@@ -38,7 +38,8 @@ var uploadGuard = {
     globals : {
         // This table serves as a template for the dashboard & upload controls table.
         // The table <th> data-names will serve as bindings to json attibutes with the same names.
-        // all possible data-name features : thumbnail, name, type, size
+        // at least these following data-names should correspond to their data-role counterparts : thumbnail, name, type, size
+        // ( that is for mapping JSON responds to table td's, all other are freely selectable, that means data-name and data-role are identical )
         table : 
             '<table class="someDashboardClass">'
                 +'<thead>'
@@ -54,42 +55,40 @@ var uploadGuard = {
                 +'</thead>'
             +'</table>',
         resumableJsLoadfiles : ['js/resumable.js','js/spark-md5.min.js','js/jquery.knob.js','css/uploadGuard.css'/*,'//cdnjs.cloudflare.com/ajax/libs/datatables/1.9.4/jquery.dataTables.min.js'*/],
-        pluploadLoadfiles : ['js/plupload/plupload.full.js','js/plupload/plupload.browserplus.js','js/plupload/jquery.plupload.queue.js']
+        pluploadLoadfiles : ['js/plupload/plupload.full.js','js/plupload/plupload.browserplus.js','js/plupload/jquery.plupload.queue.js'],
+        uploadGuardInitOptions : function() {
+            // Plugin Initialization Options
+            return {
+                // "FileReader", "resumableJs" or "plupload" ( required )
+                'uploader' : uploadGuard.globals.uploader,
+                // upload path / URL ( [data-upload] will be preferred - required )
+                'url' : '/upload',
+                // when checking a file on the server, which URL to use ( optional, also possible through data-filecheck-path data attribute, which will bind stronger )
+                'fileCheckPath' : '/check',
+                // uploadControlsTable : the table template which will be used as template for the file info dashboard ( optional )
+                'uploadControlsTable' : uploadGuard.globals.table,
+                // populateDashboardFrom : url from where to populate the dashboard with already existing data ( onpageload )
+                // e.g. which files were uploaded so far ( data-populate-from data attribute will bind stronger )
+                'populateDashboardFrom' : '/populate2',
+                // uploadControlsTableWrapper : into which html dom element to add the controls ( optional )
+                //'uploadControlsTableWrapper' : '#drop_zone_info', 
+                // dataTablesActive : set whether to use dataTables or not ( optional, default : false, http://www.datatables.net/ )
+                //'dataTablesActive' : true
+                // setting extra options for the resumable.js object, target will be overwritten by the "url" parameter ( optional )
+                'resumableJsOptions' : {
+                    'chunkSize' : 4*1024*1024, // 4mb
+                    'simultaneousUploads' : 5
+                },
+                // knob upload progress options ( optional )
+                'knob' : {
+                    data_width : 35,
+                    data_height : 35
+                    //data_fgColor : 'red'  // standard is a random color for each upload progress knob element
+                },
+            }
+        }
     }
 };
-
-
-// Plugin Initialization Options
-var uploadGuardInitOptions = function() {
-    return {
-        // "FileReader", "resumableJs" or "plupload" ( required )
-        'uploader' : uploadGuard.globals.uploader,
-        // upload path / URL ( [data-upload] will be preferred - required )
-        'url' : '/upload',
-        // when checking a file on the server, which URL to use ( optional, also possible through data-filecheck-path data attribute, which will bind stronger )
-        'fileCheckPath' : '/check',
-        // uploadControlsTable : the table template which will be used as template for the file info dashboard ( optional )
-        'uploadControlsTable' : uploadGuard.globals.table,
-        // populateDashboardFrom : url from where to populate the dashboard with already existing data ( onpageload )
-        // e.g. which files were uploaded so far ( data-populate-from data attribute will bind stronger )
-        'populateDashboardFrom' : '/populate2',
-        // uploadControlsTableWrapper : into which html dom element to add the controls ( optional )
-        //'uploadControlsTableWrapper' : '#drop_zone_info', 
-        // dataTablesActive : set whether to use dataTables or not ( optional, default : false, http://www.datatables.net/ )
-        //'dataTablesActive' : true
-        // setting extra options for the resumable.js object, target will be overwritten by the "url" parameter ( optional )
-        'resumableJsOptions' : {
-            'chunkSize' : 4*1024*1024, // 4mb
-            'simultaneousUploads' : 5
-        },
-        // knob upload progress options ( optional )
-        'knob' : {
-            data_width : 35,
-            data_height : 35
-            //data_fgColor : 'red'
-        },
-    }
-}
 
 
 // Browser compatibility test suites
@@ -120,11 +119,10 @@ Modernizr.load([
         complete : function() {
             if( uploadGuard.globals.uploader === 'FileReader' ) {
                 $('#loading_area').css('background-image', 'none'); // removing the waiting animated gif
-                //$('.drop_zones')
                 $('[data-drop-zone]')
                     .css({'visibility':'visible'})
                     .uploadGuard(
-                        uploadGuardInitOptions()
+                        //uploadGuardInitOptions()
                     );
             }
         }
@@ -148,7 +146,7 @@ Modernizr.load([
                 $('[data-drop-zone]')
                     .css({'visibility':'visible'})
                     .uploadGuard(
-                        uploadGuardInitOptions()
+                        uploadGuard.globals.uploadGuardInitOptions()
                     );
             }
         }
@@ -168,7 +166,7 @@ Modernizr.load([
                 $('[data-drop-zone]')
                     .css({'visibility':'visible'})
                     .uploadGuard(
-                        uploadGuardInitOptions()
+                        uploadGuard.globals.uploadGuardInitOptions()
                     );
             }
         }
