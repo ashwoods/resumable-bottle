@@ -70,6 +70,8 @@ var uploadGuard = {
                 // populateDashboardFrom : url from where to populate the dashboard with already existing data ( onpageload )
                 // e.g. which files were uploaded so far ( data-populate-from data attribute will bind stronger )
                 'populateDashboardFrom' : '/populate2',
+                // CSRF token ( optional )
+                'csrfToken' : 'abc123',
                 // uploadControlsTableWrapper : into which html dom element to add the controls ( optional )
                 //'uploadControlsTableWrapper' : '#drop_zone_info', 
                 // dataTablesActive : set whether to use dataTables or not ( optional, default : false, http://www.datatables.net/ )
@@ -85,8 +87,6 @@ var uploadGuard = {
                     data_height : 35
                     //data_fgColor : 'red'  // standard is a random color for each upload progress knob element
                 },
-                'csrfToken' : 'abc123',
-                    //multipart_params : {"X-CSRFToken": "{{ csrf_token }}"},
             }
         }
     }
@@ -190,9 +190,6 @@ Modernizr.load([
         populateDashboardFrom: null,
         dataTablesActive : false,
         resumableJsOptions : {
-            //headers: {"X-CSRFToken": ""},
-            //target:'/upload/',
-            //query:{project_id:'{{ project.id }}'},
             target : null,
             chunkSize : 2*1024*1024, // 2mb
             simultaneousUploads : 4,
@@ -239,31 +236,38 @@ Modernizr.load([
                 this.options.url = $(this.element).data('upload'); 
                 this.options.resumableJsOptions.target = $(this.element).data('upload'); 
             }
-            if( $(this.element).data('filecheck-path') ) { this.options.fileCheckPath = $(this.element).data('filecheck-path'); }
+            /*if( $(this.element).data('filecheck-path') ) { 
+                this.options.fileCheckPath = $(this.element).data('filecheck-path'); 
+            }*/
             if( $(this.element).data('populate-from') ) { this.options.populateDashboardFrom = $(this.element).data('populate-from'); }
             this.options.uniqId = this.generateUniqeId();
             $(this.element).addClass( 'ug_' + this.options.uniqId ); // setting ug_{uniqId} css class
-
-            //console.log( this.options );
-            
         },
         checkFileBeforeUpload : function( fileData ) {
 
+            var ret = null;
             $.ajax({
+                async: false,
+                cache: false,
+                timeout: 30000,
                 type: "POST",
                 url: this.options.fileCheckPath,
                 data: fileData,
                 contentType: 'application/json; charset=utf-8',
                 dataType: 'json',
                 success: function( msg ) {
-                    if( msg.pass ) {
-                        thisPlugin.FileReaderInterface.prepareUpload();
+                    if( msg.pass === '1' ) {
+                        ret = true;
                     }
                     else {
-                        // TODO
+                        ret = false;
                     }
                 },
+                error: function( msg ) {
+                    ret = false;
+                },
             });
+            return ret;
         },
         generateUniqeId : function() {
 
@@ -339,8 +343,6 @@ Modernizr.load([
                         // populate rows with the fetched data & append to the dashboard table
                         $.each( data, function( key, val ) {
 
-                            //console.log( val );
-                            
                             // building a dashboard table row 
                             var data = {
                                 val : val,
@@ -402,12 +404,20 @@ Modernizr.load([
 
             return tr;
         },
+        generateMD5 : function( file ) {
+            var spark = new SparkMD5();
+            spark.append( file.fileName );
+            spark.append( file.size );
+            spark.append( file.uniqueIdentifier );
+            return spark.end();
+        },
         resumableJs : {
 
             init : function( that ) {
 
                 // a separate resumable.js options object literal has to be created,
                 // otherwise the settings will be messed up
+
                 var options = {
                     target : that.options.url
                 };
@@ -432,27 +442,45 @@ Modernizr.load([
 
                 r.on('fileAdded', function(file) {
 
-                    var fgColor = ( ( that.options.knob.data_fgColor ) ? that.options.knob.data_fgColor : '#' + Math.floor(Math.random()*16777215).toString(16) );
+                    var uploadOk = false;
+                    if( $(that.element).data('filecheck-path') ) { 
+                        that.options.fileCheckPath = $(that.element).data('filecheck-path');
+                    }
+                    if( that.options.fileCheckPath ) {
 
-                    var data = {
-                        uniqueIdentifier : file.uniqueIdentifier,
-                        val : {
-                            name : file.fileName,
-                            size : file.size,
-                            type : file.file.type
-                        },
-                        knob : {
-                            fgColor : fgColor
-                        }
-                    };
-                    var appendTr = that.generateTableRow( data );
-                    $( '.ugt_' + that.options.uniqId + ' table' )
-                        .append( appendTr );
+                        var fileMD5 = thisPlugin.generateMD5( file );
+                        uploadOk = thisPlugin.checkFileBeforeUpload( {'name':file.fileName, 'size':file.size, 'type':file.file.type, 'md5':fileMD5} );
+                    }
+                    else {
+                        // bypass - no check of the file whatsoever
+                        uploadOk = true;
+                    }
 
-                    $( '.progressbar_' + file.uniqueIdentifier )
-                        .knob();
+                    // filecheck ok or bypassed
+                    if( uploadOk ) {
 
-                    r.upload();
+                        var fgColor = ( ( that.options.knob.data_fgColor ) ? that.options.knob.data_fgColor : '#' + Math.floor(Math.random()*16777215).toString(16) );
+
+                        var data = {
+                            uniqueIdentifier : file.uniqueIdentifier,
+                            val : {
+                                name : file.fileName,
+                                size : file.size,
+                                type : file.file.type
+                            },
+                            knob : {
+                                fgColor : fgColor
+                            }
+                        };
+                        var appendTr = that.generateTableRow( data );
+                        $( '.ugt_' + that.options.uniqId + ' table' )
+                            .append( appendTr );
+
+                        $( '.progressbar_' + file.uniqueIdentifier )
+                            .knob();
+
+                        r.upload();
+                    }
                 });
 
                 r.on( 'fileProgress', function( file ) {
@@ -477,8 +505,6 @@ Modernizr.load([
 
             init : function( that ) {
 
-                //console.log( $(that.element).find('[data-browse-button]') );
-
                 var uploader = new plupload.Uploader({
                     //runtimes : 'html4',
                     //runtimes : 'flash,silverlight,browserplus,html5,html4',
@@ -494,7 +520,6 @@ Modernizr.load([
                     flash_swf_url : 'js/plupload/plupload.flash.swf',
                     //silverlight_xap_url : 'js/plupload/plupload.silverlight.xap'
                 });
-                //console.log( uploader );
                 
                 uploader.init();
             }
