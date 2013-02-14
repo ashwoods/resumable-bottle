@@ -51,10 +51,7 @@ def index():
 @app.get('/populate')
 def index():
     response.content_type = 'application/json'
-    ret = [ { 'thumbnail':'http://dummyimage.com/30x30/000/fff', 'name':'testfile_one', 'size':'213', 'type':'jpg' },
-            { 'thumbnail':'http://dummyimage.com/30x30/000/fff', 'name':'testfile_two', 'size':'5342', 'type':'png' },
-            { 'thumbnail':'http://dummyimage.com/30x30/000/fff', 'name':'testfile_three', 'size':'442', 'type':'png' },
-            { "created": "2013-01-10T01:56:34.338489", 
+    ret = [ { "created": "2013-01-10T01:56:34.338489", 
                 "filetype": "image/jpeg", 
                 "id": "1", 
                 "md5": "9f68d2168c1ebb5b6368b7ed5b25aeb3", 
@@ -86,9 +83,19 @@ def index():
 @app.get('/populate2')
 def index():
     response.content_type = 'application/json'
-    ret = [ { 'thumbnail':'http://dummyimage.com/30x30/000/fff', 'name':'testfile_2_one', 'size':'13', 'type':'jpg' },
-            { 'thumbnail':'http://dummyimage.com/30x30/000/fff', 'name':'testfile_2_two', 'size':'342', 'type':'png' },
-            { 'thumbnail':'http://dummyimage.com/30x30/000/fff', 'name':'testfile_2_three', 'size':'42', 'type':'png' }]
+    ret = [ { "created": "2012-03-10T01:36:34.338483", 
+                "filetype": "image/png", 
+                "id": "1", 
+                "md5": "9f68d2168c1ebb5b6368b7ed5b25aeb3", 
+                "modified": "2012-02-10T01:56:34.341322", 
+                "original_file": "null", 
+                "original_filename": "something.jpeg", 
+                "original_filesize": "125346", 
+                "project": "/projects/apiv1/projects/5094/", 
+                "resource_uri": "/projects/apiv1/asset/1/", 
+                "short_description": "", 
+                "url": "" 
+            } ]
     return dumps(ret)
 
 @app.route('/js/:path#.+#', name='js')
@@ -108,4 +115,4 @@ def test_resumable():
     return template('example')
 
 if __name__ == '__main__':
-    run(app, debug=True, reloader=True, host='0.0.0.0', port=8000, server='gevent')
+    run(app, debug=True, reloader=True, host='0.0.0.0', port=8001, server='gevent')

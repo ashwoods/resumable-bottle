@@ -85,6 +85,8 @@ var uploadGuard = {
                     data_height : 35
                     //data_fgColor : 'red'  // standard is a random color for each upload progress knob element
                 },
+                'csrfToken' : 'abc123',
+                    //multipart_params : {"X-CSRFToken": "{{ csrf_token }}"},
             }
         }
     }
@@ -245,7 +247,7 @@ Modernizr.load([
             //console.log( this.options );
             
         },
-        checkForFileExistence : function( fileData ) {
+        checkFileBeforeUpload : function( fileData ) {
 
             $.ajax({
                 type: "POST",
@@ -409,6 +411,9 @@ Modernizr.load([
                 var options = {
                     target : that.options.url
                 };
+                if( that.options.csrfToken ) {
+                    options.headers = {"X-CSRFToken": that.options.csrfToken};
+                }
                 jQuery.extend( options, that.options.resumableJsOptions );
                 
                 var r = new Resumable(
@@ -513,7 +518,7 @@ Modernizr.load([
                     if( that.options.fileCheckPath ) {
 
                         var fileMD5 = thisPlugin.FileReaderInterface.generateMD5( file );
-                        that.checkForFileExistence( {'name':theFile.fileName, 'size':theFile.size, 'type':theFile.file.type, 'md5':fileMD5} );
+                        that.checkFileBeforeUpload( {'name':theFile.fileName, 'size':theFile.size, 'type':theFile.file.type, 'md5':fileMD5} );
                     }
                     else {
                         thisPlugin.FileReaderInterface.prepareUpload();
