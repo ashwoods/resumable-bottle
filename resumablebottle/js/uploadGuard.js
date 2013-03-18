@@ -537,13 +537,13 @@ Modernizr.load([
                 if( that.options.csrfToken ) {
                     options.headers = {"X-CSRFToken": that.options.csrfToken};
                 }
-                jQuery.extend( options, that.options.resumableJsOptions );
+                jQuery.extend( options, that.options.pluploadOptions );
 
-                //console.log( options );
+                //console.log( options);
 
                 var uploader = new plupload.Uploader(
-                    //options
-                {
+                    options
+                /*{
                     runtimes : 'flash',
                     //runtimes : 'flash,silverlight,browserplus,html5,html4',
                     //browse_button : $('[data-browse-button]'),
@@ -561,7 +561,7 @@ Modernizr.load([
                     //filters : [
                         //{title : "Allowed files", extensions : "jpg,gif,png,txt,doc,docx,pdf,zip"}
                     //]
-                    }
+                    }*/
                 );
 
                 $('#plupload-start').click(function(e) {
