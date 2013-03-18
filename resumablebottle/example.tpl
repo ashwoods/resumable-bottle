@@ -55,9 +55,11 @@
                 <div id="drop_zone" class="drop_zones" data-drop-zone="here" data-upload="/upload" data-filecheck-path="/check" data-populate-from="/populate" >
                     Drop files here or <a href="#" id="browsebutton" data-browse-button="here" >click to open file browser</a>
                 </div>
+                <button type="button" id="plupload-start" style="display: none;">Upload</button> 
+
                 <div id="drop_zone_info">
                 </div>
-                <div id="drop_zone2" class="drop_zones" data-drop-zone="here" data-upload="/upload2" data-filecheck-path="/check2" >
+                <div id="drop_zone2" class="drop_zones" data-drop-zone="here" data-upload="/upload" data-filecheck-path="/check2" >
                     Drop files here or <a href="#" id="browsebutton2" data-browse-button="here" >click to open file browser</a>
                 </div>
             </div>

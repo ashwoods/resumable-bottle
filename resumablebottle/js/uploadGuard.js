@@ -55,7 +55,7 @@ var uploadGuard = {
                 +'</thead>'
             +'</table>',
         resumableJsLoadfiles : ['js/resumable.js','js/spark-md5.min.js','js/jquery.knob.js','css/uploadGuard.css'/*,'//cdnjs.cloudflare.com/ajax/libs/datatables/1.9.4/jquery.dataTables.min.js'*/],
-        pluploadLoadfiles : ['js/plupload/plupload.full.js','js/plupload/plupload.browserplus.js','js/plupload/jquery.plupload.queue.js'],
+        pluploadLoadfiles : ['js/plupload/plupload.full.js','js/plupload/plupload.browserplus.js','js/plupload/jquery.plupload.queue.js','js/jquery.knob.js'],
         uploadGuardInitOptions : function() {
             // Plugin Initialization Options
             return {
@@ -81,6 +81,24 @@ var uploadGuard = {
                     'chunkSize' : 4*1024*1024, // 4mb
                     'simultaneousUploads' : 5
                 },
+                'pluploadOptions' : {
+                    chunk_size : '4mb',
+                    runtimes : 'flash',
+                    //runtimes : 'flash,silverlight,browserplus,html5,html4',
+                    //browse_button : $('[data-browse-button]'),
+                    browse_button : 'browsebutton',//$(that.element).find('[data-browse-button]'),
+                    //container : $(that.element),
+                    //container : 'drop_zone',//$(that.element),
+                    //headers: {"X-CSRFToken": "{{ csrf_token }}"},
+                    ////multipart_params : {"X-CSRFToken": "{{ csrf_token }}"},
+                    urlstream_upload: true,
+                    multipart : true,
+                    flash_swf_url : 'js/plupload/plupload.flash.swf',
+                    //silverlight_xap_url : 'js/plupload/plupload.silverlight.xap'
+                    //filters : [
+                        //{title : "Allowed files", extensions : "jpg,gif,png,txt,doc,docx,pdf,zip"}
+                    //],
+                },
                 // knob upload progress options ( optional )
                 'knob' : {
                     data_width : 35,
@@ -94,12 +112,14 @@ var uploadGuard = {
 
 
 // Browser compatibility test suites
-var testForFileAPI = ( Modernizr.draganddrop
+var testForFileAPI = false;
+/*var testForFileAPI = ( Modernizr.draganddrop
                         && ( typeof( File )!=='undefined' ) 
                         && ( typeof( Blob )!=='undefined' ) 
                         && ( typeof( FileList )!=='undefined' ) 
                         && ( !!Blob.prototype.webkitSlice || !!Blob.prototype.mozSlice || !!Blob.prototype.slice || false )
-                    ) ? true : false;
+                    ) ? true : false;*/
+
 //var testForFileReader = ( ( typeof( FileReader ) !== 'undefined' ) && testForFileAPI );
 //// resumable.js standalone does not need the FileReader interface
 //var testForResumableJs = ( ( typeof( FileReader ) === 'undefined' ) && testForFileAPI );
@@ -195,6 +215,8 @@ Modernizr.load([
             simultaneousUploads : 4,
             throttleProgressCallbacks : 1 
         },
+        pluploadOptions : {
+        },
         knob : {
             data_width : 40,
             data_height : 40,
@@ -215,6 +237,8 @@ Modernizr.load([
             this.setExtraOptions();
 
             this.initHtmlControls();
+
+            //alert( this.options.uploader );
 
             switch( this.options.uploader ) {
                 case 'resumableJs' :
@@ -505,23 +529,84 @@ Modernizr.load([
 
             init : function( that ) {
 
-                var uploader = new plupload.Uploader({
-                    //runtimes : 'html4',
-                    //runtimes : 'flash,silverlight,browserplus,html5,html4',
+                $('#plupload-start').show();
+
+                var options = {
+                    url : that.options.url
+                };
+                if( that.options.csrfToken ) {
+                    options.headers = {"X-CSRFToken": that.options.csrfToken};
+                }
+                jQuery.extend( options, that.options.resumableJsOptions );
+
+                //console.log( options );
+
+                var uploader = new plupload.Uploader(
+                    //options
+                {
                     runtimes : 'flash',
-                    //browse_button : $(that.element).find('[data-browse-button]'),
+                    //runtimes : 'flash,silverlight,browserplus,html5,html4',
+                    //browse_button : $('[data-browse-button]'),
                     browse_button : 'browsebutton',//$(that.element).find('[data-browse-button]'),
                     //container : $(that.element),
                     //container : 'drop_zone',//$(that.element),
-                    url : '/upload/',
+                    url : that.options.url,
                     //headers: {"X-CSRFToken": "{{ csrf_token }}"},
                     //multipart_params : {"X-CSRFToken": "{{ csrf_token }}"},
-                    //chunk_size : '2mb',
+                    chunk_size : '250kb',
+                    urlstream_upload: true,
+                    multipart : true,
                     flash_swf_url : 'js/plupload/plupload.flash.swf',
                     //silverlight_xap_url : 'js/plupload/plupload.silverlight.xap'
+                    //filters : [
+                        //{title : "Allowed files", extensions : "jpg,gif,png,txt,doc,docx,pdf,zip"}
+                    //]
+                    }
+                );
+
+                $('#plupload-start').click(function(e) {
+                    e.preventDefault();
+                    uploader.start();
                 });
                 
                 uploader.init();
+
+                uploader.bind('FilesAdded', function(up, files) {
+                    console.log( uploader );
+                    $.each(files, function( i, file ) {
+                        //console.log( file );
+                        var fgColor = ( ( that.options.knob.data_fgColor ) ? that.options.knob.data_fgColor : '#' + Math.floor(Math.random()*16777215).toString(16) );
+                        var data = {
+                            uniqueIdentifier : file.id,
+                            val : {
+                                name : file.name,
+                                size : file.size,
+                            },
+                            knob : {
+                                fgColor : fgColor
+                            }
+                        };
+                        var appendTr = that.generateTableRow( data );
+                        $( '.ugt_' + that.options.uniqId + ' table' )
+                            .append( appendTr );
+
+                        // knob init
+                        $( '.progressbar_' + file.id )
+                            .knob();
+                    });
+                    up.refresh(); // Reposition Flash/Silverlight 
+                });
+
+                uploader.bind('UploadProgress', function( up, file ) {                                         
+                    $( '.progressbar_' + file.id ).val( Math.floor( file.percent ) ).trigger('change');
+                });
+
+                uploader.bind('Error', function( up, err ) {
+                });
+
+                uploader.bind('FileUploaded', function( up, file ) {
+                    //alert( file.id + "\n" + file.name );
+                });
             }
         },
         FileReaderInterface : {
