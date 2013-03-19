@@ -33,6 +33,10 @@
  *
  */
 
+var tableHTML = $("<table />").append($('#theTable').clone().show()).html();
+//console.log( tableHTML );
+//console.log( $('#theTable').clone().html() );
+
 var file_added = function() {
     window.onbeforeunload = function() {
         return "Sie haben noch unfertige Uploads!";
@@ -81,7 +85,8 @@ var uploadGuard = {
                 // when checking a file on the server, which URL to use ( optional, also possible through data-filecheck-path data attribute, which will bind stronger )
                 'fileCheckPath' : '/check',
                 // uploadControlsTable : the table template which will be used as template for the file info dashboard ( optional )
-                'uploadControlsTable' : uploadGuard.globals.table,
+                'uploadControlsTable' : $("<table />").append($('#theTable').clone().show()).html(),
+                //'uploadControlsTable' : uploadGuard.globals.table,
                 // populateDashboardFrom : url from where to populate the dashboard with already existing data ( onpageload )
                 // e.g. which files were uploaded so far ( data-populate-from data attribute will bind stronger )
                 'populateDashboardFrom' : '/populate2',

@@ -51,6 +51,28 @@
     </head>
     <body>
         <div id="content">
+            <table class="someDashboardClass" id="theTable" style="display:none;">
+                <thead>
+                    <tr>
+                        <th data-name="original_thumbnail" data-role="thumbnail" data-upload-progress="true">Thumbnail</th>
+                        <th data-name="original_filename" data-role="name">Name</th>
+                        <th data-name="filetype" data-role="type">Filetype</th>
+                        <th data-name="original_filesize" data-role="size">Size</th>
+                        <th data-name="created" data-role="created">created</th>
+                        <th data-name="resource_uri" data-role="resource_uri">resource</th>
+                        <th>Something</th>
+                    </tr>
+                    <tr>
+                        <td>Some Thumbnail</th>
+                        <td>Some Name</th>
+                        <td>Some FileType</th>
+                        <td>Some Size</th>
+                        <td>Created Sometime</th>
+                        <td>Some Resource</th>
+                    </tr>
+                </thead>
+            </table>
+
             <div id="loading_area">
                 <div id="drop_zone" class="drop_zones" data-drop-zone="here" data-upload="/upload" data-filecheck-path="/check" data-populate-from="/populate" >
                     Drop files here or <a href="#" id="browsebutton" data-browse-button="here" >click to open file browser</a>
