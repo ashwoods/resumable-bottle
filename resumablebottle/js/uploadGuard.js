@@ -33,7 +33,7 @@
  *
  */
 
-var while_upload = function() {
+var file_added = function() {
     window.onbeforeunload = function() {
         return "Sie haben noch unfertige Uploads!";
     }
@@ -68,7 +68,8 @@ var uploadGuard = {
             +'</table>',
         resumableJsLoadfiles : ['js/resumable.js','js/spark-md5.min.js','js/jquery.knob.js','css/uploadGuard.css'/*,'//cdnjs.cloudflare.com/ajax/libs/datatables/1.9.4/jquery.dataTables.min.js'*/],
         pluploadLoadfiles : ['js/plupload/plupload.full.js','js/plupload/plupload.browserplus.js','js/plupload/jquery.plupload.queue.js','js/jquery.knob.js'],
-        hook_while_upload : while_upload,   // example service hook
+        hook_file_added : file_added,   // example service hook
+        //hook_while_upload : while_upload,   // example service hook
         hook_uploads_finished : finished_uploads,   // example service hook
         uploadGuardInitOptions : function() {
             // Plugin Initialization Options
@@ -126,13 +127,13 @@ var uploadGuard = {
 
 
 // Browser compatibility test suites
-var testForFileAPI = false;
-//var testForFileAPI = ( Modernizr.draganddrop
-                        //&& ( typeof( File )!=='undefined' ) 
-                        //&& ( typeof( Blob )!=='undefined' ) 
-                        //&& ( typeof( FileList )!=='undefined' ) 
-                        //&& ( !!Blob.prototype.webkitSlice || !!Blob.prototype.mozSlice || !!Blob.prototype.slice || false )
-                    //) ? true : false;
+//var testForFileAPI = false;
+var testForFileAPI = ( Modernizr.draganddrop
+                        && ( typeof( File )!=='undefined' ) 
+                        && ( typeof( Blob )!=='undefined' ) 
+                        && ( typeof( FileList )!=='undefined' ) 
+                        && ( !!Blob.prototype.webkitSlice || !!Blob.prototype.mozSlice || !!Blob.prototype.slice || false )
+                    ) ? true : false;
 
 //var testForFileReader = ( ( typeof( FileReader ) !== 'undefined' ) && testForFileAPI );
 //// resumable.js standalone does not need the FileReader interface
@@ -483,6 +484,9 @@ Modernizr.load([
 
                 r.on('fileAdded', function(file) {
 
+                    // setting service hook
+                    ( uploadGuard.globals.hook_file_added ) ? uploadGuard.globals.hook_file_added() : null;
+
                     var uploadOk = false;
                     fileRetries[file.uniqueIdentifier] = 0;
                     if( $(that.element).data('filecheck-path') ) { 
@@ -609,7 +613,7 @@ Modernizr.load([
                 uploader.bind('FilesAdded', function(up, files) {
 
                     // setting service hook
-                    ( uploadGuard.globals.hook_while_upload ) ? uploadGuard.globals.hook_while_upload() : null;
+                    ( uploadGuard.globals.hook_file_added ) ? uploadGuard.globals.hook_file_added() : null;
 
                     $.each(files, function( i, file ) {
                         //console.log( file );
@@ -636,6 +640,9 @@ Modernizr.load([
                 });
 
                 uploader.bind('UploadProgress', function( up, file ) {
+                    // setting service hook
+                    ( uploadGuard.globals.hook_while_upload ) ? uploadGuard.globals.hook_while_upload() : null;
+
                     $( '.progressbar_' + file.id ).val( Math.floor( file.percent ) ).trigger('change');
                 });
 
