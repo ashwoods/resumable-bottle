@@ -33,6 +33,18 @@
  *
  */
 
+var while_upload = function() {
+    window.onbeforeunload = function() {
+        return "Sie haben noch unfertige Uploads!";
+    }
+}
+
+// Reflect that all uploads are completed
+var finished_uploads = function() {
+    window.onbeforeunload = function() {
+        return null;
+    }
+}
 
 var uploadGuard = {
     globals : {
@@ -56,6 +68,8 @@ var uploadGuard = {
             +'</table>',
         resumableJsLoadfiles : ['js/resumable.js','js/spark-md5.min.js','js/jquery.knob.js','css/uploadGuard.css'/*,'//cdnjs.cloudflare.com/ajax/libs/datatables/1.9.4/jquery.dataTables.min.js'*/],
         pluploadLoadfiles : ['js/plupload/plupload.full.js','js/plupload/plupload.browserplus.js','js/plupload/jquery.plupload.queue.js','js/jquery.knob.js'],
+        hook_while_upload : while_upload,   // example service hook
+        hook_uploads_finished : finished_uploads,   // example service hook
         uploadGuardInitOptions : function() {
             // Plugin Initialization Options
             return {
@@ -83,7 +97,7 @@ var uploadGuard = {
                 },
                 'pluploadOptions' : {
                     chunk_size : '4mb',
-                    runtimes : 'flash',
+                    runtimes : 'html4',
                     //runtimes : 'flash,silverlight,browserplus,html5,html4',
                     //browse_button : $('[data-browse-button]'),
                     browse_button : 'browsebutton',//$(that.element).find('[data-browse-button]'),
@@ -113,12 +127,12 @@ var uploadGuard = {
 
 // Browser compatibility test suites
 var testForFileAPI = false;
-/*var testForFileAPI = ( Modernizr.draganddrop
-                        && ( typeof( File )!=='undefined' ) 
-                        && ( typeof( Blob )!=='undefined' ) 
-                        && ( typeof( FileList )!=='undefined' ) 
-                        && ( !!Blob.prototype.webkitSlice || !!Blob.prototype.mozSlice || !!Blob.prototype.slice || false )
-                    ) ? true : false;*/
+//var testForFileAPI = ( Modernizr.draganddrop
+                        //&& ( typeof( File )!=='undefined' ) 
+                        //&& ( typeof( Blob )!=='undefined' ) 
+                        //&& ( typeof( FileList )!=='undefined' ) 
+                        //&& ( !!Blob.prototype.webkitSlice || !!Blob.prototype.mozSlice || !!Blob.prototype.slice || false )
+                    //) ? true : false;
 
 //var testForFileReader = ( ( typeof( FileReader ) !== 'undefined' ) && testForFileAPI );
 //// resumable.js standalone does not need the FileReader interface
@@ -439,6 +453,9 @@ Modernizr.load([
 
             init : function( that ) {
 
+                // how often a specific upload had to retry?
+                var fileRetries = {};
+
                 // a separate resumable.js options object literal has to be created,
                 // otherwise the settings will be messed up
 
@@ -467,6 +484,7 @@ Modernizr.load([
                 r.on('fileAdded', function(file) {
 
                     var uploadOk = false;
+                    fileRetries[file.uniqueIdentifier] = 0;
                     if( $(that.element).data('filecheck-path') ) { 
                         that.options.fileCheckPath = $(that.element).data('filecheck-path');
                     }
@@ -508,6 +526,10 @@ Modernizr.load([
                 });
 
                 r.on( 'fileProgress', function( file ) {
+
+                    // setting service hook
+                    ( uploadGuard.globals.hook_while_upload ) ? uploadGuard.globals.hook_while_upload() : null;
+
                     // Handle progress for both the file and the overall upload
                     $( '.progressbar_' + file.uniqueIdentifier ).val( Math.floor( file.progress()*100 ) ).trigger('change');
                 });
@@ -516,12 +538,25 @@ Modernizr.load([
                     // Reflect that a particular file upload has completed
                 });
 
+                r.on( 'fileRetry', function( file ) {
+                    // break fileUpload after x retries
+                    if( fileRetries[file.uniqueIdentifier] >= 4 ) {
+                        r.error(message, file); // TODO : find another solution for canceling the upload
+                        //r.cancel();
+                    }
+                    else {
+                        fileRetries[file.uniqueIdentifier]++;
+                    }
+                    //console.log(fileRetries);
+                });
+
                 r.on( 'fileError', function( file, message ) {
                     // Reflect that a particular file upload has resulted in an error
                 });
 
                 r.on('complete', function() {
-                    // Reflect that a all uploads are completed
+                    // setting service hook
+                    ( uploadGuard.globals.hook_uploads_finished() ) ? uploadGuard.globals.hook_uploads_finished() : null;
                 });
             }
         },
@@ -572,7 +607,10 @@ Modernizr.load([
                 uploader.init();
 
                 uploader.bind('FilesAdded', function(up, files) {
-                    console.log( uploader );
+
+                    // setting service hook
+                    ( uploadGuard.globals.hook_while_upload ) ? uploadGuard.globals.hook_while_upload() : null;
+
                     $.each(files, function( i, file ) {
                         //console.log( file );
                         var fgColor = ( ( that.options.knob.data_fgColor ) ? that.options.knob.data_fgColor : '#' + Math.floor(Math.random()*16777215).toString(16) );
@@ -597,7 +635,7 @@ Modernizr.load([
                     up.refresh(); // Reposition Flash/Silverlight 
                 });
 
-                uploader.bind('UploadProgress', function( up, file ) {                                         
+                uploader.bind('UploadProgress', function( up, file ) {
                     $( '.progressbar_' + file.id ).val( Math.floor( file.percent ) ).trigger('change');
                 });
 
@@ -605,7 +643,11 @@ Modernizr.load([
                 });
 
                 uploader.bind('FileUploaded', function( up, file ) {
-                    //alert( file.id + "\n" + file.name );
+                });
+
+                uploader.bind('UploadComplete', function( up, files ) {
+                    // setting service hook
+                    ( uploadGuard.globals.hook_uploads_finished() ) ? uploadGuard.globals.hook_uploads_finished() : null;
                 });
             }
         },
