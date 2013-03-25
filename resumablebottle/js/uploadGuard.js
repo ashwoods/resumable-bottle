@@ -70,8 +70,8 @@ var uploadGuard = {
                     +'</tr>'
                 +'</thead>'
             +'</table>',
-        resumableJsLoadfiles : ['js/resumable.js','js/spark-md5.min.js','js/jquery.knob.js','css/uploadGuard.css'/*,'//cdnjs.cloudflare.com/ajax/libs/datatables/1.9.4/jquery.dataTables.min.js'*/],
-        pluploadLoadfiles : ['js/plupload/plupload.full.js','js/plupload/plupload.browserplus.js','js/plupload/jquery.plupload.queue.js','js/jquery.knob.js'],
+        resumableJsLoadfiles : ['js/resumable.js','js/spark-md5.min.js','css/uploadGuard.css'/*,'//cdnjs.cloudflare.com/ajax/libs/datatables/1.9.4/jquery.dataTables.min.js'*/],
+        pluploadLoadfiles : ['js/plupload/plupload.full.js','js/plupload/plupload.browserplus.js','js/plupload/jquery.plupload.queue.js'],
         hook_file_added : file_added,   // example service hook
         //hook_while_upload : while_upload,   // example service hook
         hook_uploads_finished : finished_uploads,   // example service hook
@@ -113,7 +113,7 @@ var uploadGuard = {
                     ////multipart_params : {"X-CSRFToken": "{{ csrf_token }}"},
                     urlstream_upload: true,
                     multipart : true,
-                    flash_swf_url : 'js/plupload/plupload.flash.swf',
+                    flash_swf_url : 'js/plupload/plupload.flash.swf'
                     //silverlight_xap_url : 'js/plupload/plupload.silverlight.xap'
                     //filters : [
                         //{title : "Allowed files", extensions : "jpg,gif,png,txt,doc,docx,pdf,zip"}
@@ -124,7 +124,7 @@ var uploadGuard = {
                     data_width : 35,
                     data_height : 35
                     //data_fgColor : 'red'  // standard is a random color for each upload progress knob element
-                },
+                }
             }
         }
     }
@@ -150,6 +150,14 @@ var testForResumableJs = ( ( typeof( FileReader ) !== 'undefined' ) && testForFi
 
 Modernizr.load([
     {
+        test : ( Modernizr.canvas ), 
+        yep : ['js/jquery.knob.js'],
+        callback: function( url, result, key ) {
+        },
+        complete : function() {
+        }
+    },
+    /*{
         test : testForFileReader,   // FileReader interface
         yep : ['js/resumable.js','js/spark-md5.min.js', 'js/jquery.knob.js','css/uploadGuard.css'],
         callback: function( url, result, key ) {
@@ -168,7 +176,7 @@ Modernizr.load([
                     );
             }
         }
-    },
+    },*/
     {
         test : testForResumableJs,  // resumable.js
         //yep : ['js/resumable.js','js/spark-md5.min.js', 'js/jquery.knob.js','css/uploadGuard.css'],
@@ -239,7 +247,7 @@ Modernizr.load([
         },
         knob : {
             data_width : 40,
-            data_height : 40,
+            data_height : 40
         }
     };
 
@@ -309,7 +317,7 @@ Modernizr.load([
                 },
                 error: function( msg ) {
                     ret = false;
-                },
+                }
             });
             return ret;
         },
@@ -527,8 +535,14 @@ Modernizr.load([
                         $( '.ugt_' + that.options.uniqId + ' table' )
                             .append( appendTr );
 
-                        $( '.progressbar_' + file.uniqueIdentifier )
-                            .knob();
+                        var progbar_id = '.progressbar_' + file.uniqueIdentifier;
+                        if($.fn.knob !== undefined) {
+                            // knob init
+                            $( progbar_id ).knob();
+                        }
+                        else {
+                            $( progbar_id ).css({'width':'30px'}).after('%'); // #display % done in input field
+                        }
 
                         r.upload();
                     }
@@ -627,19 +641,23 @@ Modernizr.load([
                             uniqueIdentifier : file.id,
                             val : {
                                 name : file.name,
-                                size : file.size,
+                                size : file.size
                             },
                             knob : {
                                 fgColor : fgColor
                             }
                         };
                         var appendTr = that.generateTableRow( data );
-                        $( '.ugt_' + that.options.uniqId + ' table' )
-                            .append( appendTr );
+                        $( '.ugt_' + that.options.uniqId + ' table' ).append( appendTr );
 
-                        // knob init
-                        $( '.progressbar_' + file.id )
-                            .knob();
+                        var progbar_id = '.progressbar_' + file.id;
+                        if($.fn.knob !== undefined) {
+                            // knob init
+                            $( progbar_id ).knob();
+                        }
+                        else {
+                            $( progbar_id ).css({'width':'30px'}).after('%'); // #display % done in input field
+                        }
                     });
                     up.refresh(); // Reposition Flash/Silverlight 
                 });
