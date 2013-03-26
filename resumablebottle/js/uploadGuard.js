@@ -652,7 +652,7 @@ Modernizr.load([
                             }
                         };
                         var appendTr = that.generateTableRow( data );
-                        console.log( that.options.uniqId );
+                        //console.log( that.options.uniqId );
                         $( '.ugt_' + that.options.uniqId + ' table' ).append( appendTr );
 
                         var progbar_id = '.progressbar_' + file.id;
