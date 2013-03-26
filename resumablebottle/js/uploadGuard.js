@@ -597,8 +597,6 @@ Modernizr.load([
                 }
                 jQuery.extend( options, that.options.pluploadOptions );
 
-                //console.log( options);
-
                 var uploader = new plupload.Uploader(
                     options
                 /*{
@@ -629,6 +627,12 @@ Modernizr.load([
                 
                 uploader.init();
 
+                // ugly plupload hack - assigning the upload brwose button id - don't do that at home ...
+                /*$('[data-browse-button]').mouseenter(function() {
+                    uploader.settings.browse_button = $(this).attr('id'); //Assign the ID of the pickfiles button to pluploads browse_button
+                    uploader.refresh();
+                });*/
+
                 uploader.bind('FilesAdded', function(up, files) {
 
                     // setting service hook
@@ -648,6 +652,7 @@ Modernizr.load([
                             }
                         };
                         var appendTr = that.generateTableRow( data );
+                        console.log( that.options.uniqId );
                         $( '.ugt_' + that.options.uniqId + ' table' ).append( appendTr );
 
                         var progbar_id = '.progressbar_' + file.id;
@@ -659,6 +664,7 @@ Modernizr.load([
                             $( progbar_id ).css({'width':'30px'}).after('%'); // #display % done in input field
                         }
                     });
+
                     up.refresh(); // Reposition Flash/Silverlight 
                 });
 
