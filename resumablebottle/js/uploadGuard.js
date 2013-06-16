@@ -70,8 +70,8 @@ var uploadGuard = {
                     +'</tr>'
                 +'</thead>'
             +'</table>',
-        resumableJsLoadfiles : ['js/resumable.js','js/spark-md5.min.js','js/jquery.knob.js','css/uploadGuard.css'/*,'//cdnjs.cloudflare.com/ajax/libs/datatables/1.9.4/jquery.dataTables.min.js'*/],
-        pluploadLoadfiles : ['js/plupload/plupload.full.js','js/plupload/plupload.browserplus.js','js/plupload/jquery.plupload.queue.js','js/jquery.knob.js'],
+        resumableJsLoadfiles : ['js/resumable.js','js/spark-md5.min.js','css/uploadGuard.css'/*,'//cdnjs.cloudflare.com/ajax/libs/datatables/1.9.4/jquery.dataTables.min.js'*/],
+        pluploadLoadfiles : ['js/plupload/plupload.full.js','js/plupload/plupload.browserplus.js','js/plupload/jquery.plupload.queue.js'],
         hook_file_added : file_added,   // example service hook
         //hook_while_upload : while_upload,   // example service hook
         hook_uploads_finished : finished_uploads,   // example service hook
@@ -124,7 +124,7 @@ var uploadGuard = {
                     data_width : 35,
                     data_height : 35
                     //data_fgColor : 'red'  // standard is a random color for each upload progress knob element
-                }    
+                }
             }
         }
     }
@@ -167,6 +167,14 @@ var testForResumableJs = ( ( typeof( FileReader ) !== 'undefined' ) && testForFi
 // yepnope load & invoke actions
 Modernizr.load([
     {
+        test : ( Modernizr.canvas ), 
+        yep : ['js/jquery.knob.js'],
+        callback: function( url, result, key ) {
+        },
+        complete : function() {
+        }
+    },
+    /*{
         test : testForFileReader,   // FileReader interface
         yep : ['js/resumable.js','js/spark-md5.min.js', 'js/jquery.knob.js','css/uploadGuard.css'],
         callback: function( url, result, key ) {
@@ -185,7 +193,7 @@ Modernizr.load([
                     );
             }
         }
-    },
+    },*/
     {
         test : testForResumableJs,  // resumable.js
         //yep : ['js/resumable.js','js/spark-md5.min.js', 'js/jquery.knob.js','css/uploadGuard.css'],
@@ -544,8 +552,14 @@ Modernizr.load([
                         $( '.ugt_' + that.options.uniqId + ' table' )
                             .append( appendTr );
 
-                        $( '.progressbar_' + file.uniqueIdentifier )
-                            .knob();
+                        var progbar_id = '.progressbar_' + file.uniqueIdentifier;
+                        if($.fn.knob !== undefined) {
+                            // knob init
+                            $( progbar_id ).knob();
+                        }
+                        else {
+                            $( progbar_id ).css({'width':'30px'}).after('%'); // #display % done in input field
+                        }
 
                         r.upload();
                     }
@@ -600,8 +614,6 @@ Modernizr.load([
                 }
                 jQuery.extend( options, that.options.pluploadOptions );
 
-                //console.log( options);
-
                 var uploader = new plupload.Uploader(
                     options
                 /*{
@@ -632,6 +644,12 @@ Modernizr.load([
                 
                 uploader.init();
 
+                // ugly plupload hack - assigning the upload brwose button id - don't do that at home ...
+                /*$('[data-browse-button]').mouseenter(function() {
+                    uploader.settings.browse_button = $(this).attr('id'); //Assign the ID of the pickfiles button to pluploads browse_button
+                    uploader.refresh();
+                });*/
+
                 uploader.bind('FilesAdded', function(up, files) {
 
                     // setting service hook
@@ -651,13 +669,19 @@ Modernizr.load([
                             }
                         };
                         var appendTr = that.generateTableRow( data );
-                        $( '.ugt_' + that.options.uniqId + ' table' )
-                            .append( appendTr );
+                        //console.log( that.options.uniqId );
+                        $( '.ugt_' + that.options.uniqId + ' table' ).append( appendTr );
 
-                        // knob init
-                        $( '.progressbar_' + file.id )
-                            .knob();
+                        var progbar_id = '.progressbar_' + file.id;
+                        if($.fn.knob !== undefined) {
+                            // knob init
+                            $( progbar_id ).knob();
+                        }
+                        else {
+                            $( progbar_id ).css({'width':'30px'}).after('%'); // #display % done in input field
+                        }
                     });
+
                     up.refresh(); // Reposition Flash/Silverlight 
                 });
 
