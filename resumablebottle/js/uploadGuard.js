@@ -113,7 +113,7 @@ var uploadGuard = {
                     ////multipart_params : {"X-CSRFToken": "{{ csrf_token }}"},
                     urlstream_upload: true,
                     multipart : true,
-                    flash_swf_url : 'js/plupload/plupload.flash.swf',
+                    flash_swf_url : 'js/plupload/plupload.flash.swf'
                     //silverlight_xap_url : 'js/plupload/plupload.silverlight.xap'
                     //filters : [
                         //{title : "Allowed files", extensions : "jpg,gif,png,txt,doc,docx,pdf,zip"}
@@ -124,12 +124,28 @@ var uploadGuard = {
                     data_width : 35,
                     data_height : 35
                     //data_fgColor : 'red'  // standard is a random color for each upload progress knob element
-                },
+                }    
             }
         }
     }
 };
 
+/** Simple but effective IE detection.
+ *  From : http://stackoverflow.com/questions/4169160/javascript-ie-detection-why-not-use-simple-conditional-comments
+ **/
+var ie = (function() {
+    var undef,
+        rv = -1; // Return value assumes failure.
+    if( navigator.appName == 'Microsoft Internet Explorer' )
+    {
+        var ua = navigator.userAgent;
+        var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+        if( re.exec(ua) != null )
+            rv = parseFloat( RegExp.$1 );
+    }
+
+    return ( ( rv > -1 ) ? rv : undef );
+}());
 
 // Browser compatibility test suites
 //var testForFileAPI = false;
@@ -138,6 +154,7 @@ var testForFileAPI = ( Modernizr.draganddrop
                         && ( typeof( Blob )!=='undefined' ) 
                         && ( typeof( FileList )!=='undefined' ) 
                         && ( !!Blob.prototype.webkitSlice || !!Blob.prototype.mozSlice || !!Blob.prototype.slice || false )
+                        && ( ie !== 10 ) // detect if IE 10
                     ) ? true : false;
 
 //var testForFileReader = ( ( typeof( FileReader ) !== 'undefined' ) && testForFileAPI );
@@ -147,7 +164,7 @@ var testForFileAPI = ( Modernizr.draganddrop
 var testForFileReader = ( ( typeof( FileReader ) === 'undefined' ) && testForFileAPI );
 var testForResumableJs = ( ( typeof( FileReader ) !== 'undefined' ) && testForFileAPI );
 
-
+// yepnope load & invoke actions
 Modernizr.load([
     {
         test : testForFileReader,   // FileReader interface
@@ -239,7 +256,7 @@ Modernizr.load([
         },
         knob : {
             data_width : 40,
-            data_height : 40,
+            data_height : 40
         }
     };
 
@@ -309,7 +326,7 @@ Modernizr.load([
                 },
                 error: function( msg ) {
                     ret = false;
-                },
+                }
             });
             return ret;
         },
@@ -627,7 +644,7 @@ Modernizr.load([
                             uniqueIdentifier : file.id,
                             val : {
                                 name : file.name,
-                                size : file.size,
+                                size : file.size
                             },
                             knob : {
                                 fgColor : fgColor
