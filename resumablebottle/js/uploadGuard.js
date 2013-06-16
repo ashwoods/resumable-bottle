@@ -70,7 +70,7 @@ var uploadGuard = {
                     +'</tr>'
                 +'</thead>'
             +'</table>',
-        resumableJsLoadfiles : ['js/resumable.js','js/spark-md5.min.js','css/uploadGuard.css'/*,'//cdnjs.cloudflare.com/ajax/libs/datatables/1.9.4/jquery.dataTables.min.js'*/],
+        resumableJsLoadfiles : ['js/resumable2.js','js/spark-md5.min.js','css/uploadGuard.css'/*,'//cdnjs.cloudflare.com/ajax/libs/datatables/1.9.4/jquery.dataTables.min.js'*/],
         pluploadLoadfiles : ['js/plupload/plupload.full.js','js/plupload/plupload.browserplus.js','js/plupload/jquery.plupload.queue.js'],
         hook_file_added : file_added,   // example service hook
         //hook_while_upload : while_upload,   // example service hook
