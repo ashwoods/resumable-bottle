@@ -33,6 +33,12 @@
  *
  */
 
+// overall dependency for Modernizr check
+if( typeof Modernizr == 'undefined' ) {
+    console.log('Please make sure that Modernizr is available!');
+    throw "stop execution";
+}
+
 var tableHTML = $("<table />").append($('#theTable').clone().show()).html();
 //console.log( tableHTML );
 //console.log( $('#theTable').clone().html() );
