@@ -716,4 +716,4 @@ var Resumable = function(opts){
 }
 
 // Node.js-style export for Node and Component
-module.exports = Resumable;
+//module.exports = Resumable;

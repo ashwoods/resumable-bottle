@@ -34,10 +34,12 @@
  */
 
 // overall dependency for Modernizr check
+/*
 if( typeof Modernizr == 'undefined' ) {
     console.log('Please make sure that Modernizr is available!');
     throw "stop execution";
 }
+*/
 
 var tableHTML = $("<table />").append($('#theTable').clone().show()).html();
 //console.log( tableHTML );
@@ -155,8 +157,8 @@ var ie = (function() {
 
 // Browser compatibility test suites
 //var testForFileAPI = false;
-var testForFileAPI = ( Modernizr.draganddrop
-                        && ( typeof( File )!=='undefined' ) 
+var testForFileAPI = ( //Modernizr.draganddrop
+                        ( typeof( File )!=='undefined' ) 
                         && ( typeof( Blob )!=='undefined' ) 
                         && ( typeof( FileList )!=='undefined' ) 
                         && ( !!Blob.prototype.webkitSlice || !!Blob.prototype.mozSlice || !!Blob.prototype.slice || false )
@@ -171,6 +173,7 @@ var testForFileReader = ( ( typeof( FileReader ) === 'undefined' ) && testForFil
 var testForResumableJs = ( ( typeof( FileReader ) !== 'undefined' ) && testForFileAPI );
 
 // yepnope load & invoke actions
+/*
 Modernizr.load([
     {
         test : ( Modernizr.canvas ),
@@ -180,26 +183,6 @@ Modernizr.load([
         complete : function() {
         }
     },
-    /*{
-        test : testForFileReader,   // FileReader interface
-        yep : ['js/resumable.js','js/spark-md5.min.js', 'js/jquery.knob.js','css/uploadGuard.css'],
-        callback: function( url, result, key ) {
-            // callback method gets called after every ( yep & nope ) action!
-            if( ! uploadGuard.globals.uploader ) {
-                uploadGuard.globals.uploader = 'FileReader'
-            }
-        },
-        complete : function() {
-            if( uploadGuard.globals.uploader === 'FileReader' ) {
-                $('#loading_area').css('background-image', 'none'); // removing the waiting animated gif
-                $('[data-drop-zone]')
-                    .css({'visibility':'visible'})
-                    .uploadGuard(
-                        //uploadGuardInitOptions()
-                    );
-            }
-        }
-    },*/
     {
         test : testForResumableJs,  // resumable.js
         //yep : ['js/resumable.js','js/spark-md5.min.js', 'js/jquery.knob.js','css/uploadGuard.css'],
@@ -245,12 +228,12 @@ Modernizr.load([
         }
     }
 ]);
-
+*/
 
 /**
  *  the main upload scripts handler plugin
  * */
-(function ($, window, document, undefined) {
+( function( $, window, document, undefined ) {
     var pluginName = "uploadGuard";
     var thisPlugin = {};
     var defaults = {
@@ -284,6 +267,7 @@ Modernizr.load([
 
     Plugin.prototype = {
         init: function () {
+            alert('h');
 
             this.setExtraOptions();
 
@@ -788,3 +772,16 @@ Modernizr.load([
         });
     };
 })(jQuery, window, document);
+
+
+
+
+
+uploadGuard.globals.uploader = 'resumableJs';
+$('#loading_area').css('background-image', 'none'); // removing the waiting animated gif
+$('[data-drop-zone]')
+    .css({'visibility':'visible'})
+    .uploadGuard(
+        uploadGuard.globals.uploadGuardInitOptions()
+    );
+
