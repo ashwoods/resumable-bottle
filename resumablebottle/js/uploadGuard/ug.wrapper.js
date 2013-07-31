@@ -5,7 +5,6 @@
  *  ug.wrapper.js - uploadGuard - a wrapper for several upload plugins
  */
 
-
 var ug = function( options ) {
 
   // INSTANTIATE
@@ -23,6 +22,8 @@ var ug = function( options ) {
     // OPTIONS
     $.defaults = ughelpers.extend( $.defaults, options );
     console.log( $.defaults );
+    //console.log( ughelpers.ie );
+    console.log( ughelpers.testForFileApi );
   }
 
   $.construct();
