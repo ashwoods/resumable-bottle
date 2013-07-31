@@ -28,8 +28,8 @@
         <script src="js/plupload/plupload.browserplus.js"></script>
         <script src="js/plupload/jquery.plupload.queue.js"></script>
 
-        <script src="js/uploadGuard/ughelpers.js"></script>
-        <script src="js/uploadGuard/uploadGuard3.js"></script>
+        <script src="js/uploadGuard/ug.helpers.js"></script>
+        <script src="js/uploadGuard/ug.wrapper.js"></script>
     </head>
     <body>
         <div id="content">
