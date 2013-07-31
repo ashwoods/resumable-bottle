@@ -118,5 +118,9 @@ def test_resumable():
 def test_resumable():
     return template('example2')
 
+@app.route('/test3')
+def test_resumable():
+    return template('example3')
+
 if __name__ == '__main__':
     run(app, debug=True, reloader=True, host='0.0.0.0', port=8001, server='gevent')

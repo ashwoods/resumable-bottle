@@ -782,6 +782,6 @@ $('#loading_area').css('background-image', 'none'); // removing the waiting anim
 $('[data-drop-zone]')
     .css({'visibility':'visible'})
     .uploadGuard(
-        uploadGuard.globals.uploadGuardInitOptions()
+        uploadGuard.globals.uploadGuardInitOptions();
     );
 
