@@ -2,7 +2,7 @@
 "use strict";
 
 /**
- *  ug.wrapper.js - uploadGuard - A Wrapper for Upload Plugins
+ *  ug.api.js - uploadGuard - A Wrapper & API for Upload Plugins
  */
 
 var ug = function( options ) {

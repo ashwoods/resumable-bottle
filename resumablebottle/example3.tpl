@@ -30,7 +30,7 @@
         <script src="js/plupload/jquery.plupload.queue.js"></script>
 
         <script src="js/uploadGuard/ug.helpers.js"></script>
-        <script src="js/uploadGuard/ug.wrapper.js"></script>
+        <script src="js/uploadGuard/ug.api.js"></script>
     </head>
     <body>
         <div id="content">
