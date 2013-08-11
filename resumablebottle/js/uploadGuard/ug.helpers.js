@@ -14,15 +14,35 @@ var ughelpers = {
     }
     return a;
   },
-  testForFileAPI : function() {
-    var a = ( ( typeof( File )!=='undefined' ) 
+  /*
+  testForFileApi : ( ( 
+    ( typeof( File )!=='undefined' ) 
       && ( typeof( Blob )!=='undefined' ) 
       && ( typeof( FileList )!=='undefined' ) 
       && ( !!Blob.prototype.webkitSlice || !!Blob.prototype.mozSlice || !!Blob.prototype.slice || false )
       && ( this.ie !== 10 ) // detect if IE 10
-    ) ? true : false;
-    console.log( a );
+    ) ? true : false ),
+  */
+  testForFileApi : function() {
+    return ( ( 
+    ( typeof( File )!=='undefined' ) 
+      && ( typeof( Blob )!=='undefined' ) 
+      && ( typeof( FileList )!=='undefined' ) 
+      && ( !!Blob.prototype.webkitSlice || !!Blob.prototype.mozSlice || !!Blob.prototype.slice || false )
+      && ( this.ie !== 10 ) // detect if IE 10
+    ) ? true : false )
   },
+  testForResumableJs : function() { 
+    return ( ( typeof( FileReader ) !== 'undefined' ) && this.testForFileApi() );
+    /*
+    if( ( typeof( FileReader ) !== 'undefined' ) && this.testForFileApi ) {
+        alert('resumableJS');
+    } else {
+        alert('plupload');
+    }
+    */
+  },
+  //testForResumableJs : ( ( ( typeof( FileReader ) !== 'undefined' ) && this.testForFileApi ) ? false : true ),
   /** 
    *  Simple but effective IE detection : http://stackoverflow.com/questions/4169160/javascript-ie-detection-why-not-use-simple-conditional-comments
    *  returns a version number
