@@ -57,6 +57,16 @@ var ughelpers = {
       }
     }
     return ( ( rv > -1 ) ? rv : undef );
-  }())
+  }()),
+  /** 
+   *  Tests if an object already exists.
+   *  Throws an error and stops the further script execution if so.
+   */
+  testFor : ( function( what ) {
+    if( typeof eval( what ) === 'undefined' ) {
+      console.log( 'missing ' + what );
+      throw new Error( 'missing ' + what );
+    }
+  })
 };
 

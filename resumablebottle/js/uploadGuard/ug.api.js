@@ -13,43 +13,57 @@ var ug = function( options ) {
   }
 
   // PROPERTIES
-  var $ = this;
-  $.uploader = new String(); // resumable or plupload ...
-  $.defaults = {
+  var $_ = this;
+  $_.uploaderIdentifier = new String(); // resumable or plupload ...
+  $_.uploader = new Object(); // resumable or plupload uploader object
+  $_.defaults = { // default option parameters
+    Resumable : {
+      target : null,
+      chunkSize : 2*1024*1024, // 2MB
+      simultaneousUploads : 4,
+      throttleProgressCallbacks : 1
+    },
+    drop_zone : '.drop-zone'
   };
 
   // CONSTRUCTOR
-  $.construct = function() {
+  $_.construct = function() {
+
     // OPTIONS
-    $.defaults = ughelpers.extend( $.defaults, options );
-    console.log( $.defaults );
+    $_.defaults = ughelpers.extend( $_.defaults, options );
+    //console.log( $_.defaults );
 
-    /*
-    console.log( ughelpers.ie );
-    console.log( ughelpers.testForFileApi() );
-    console.log( typeof( FileReader ) !== 'undefined' );
-    */
+    // TEST WHICH UPLOADER CAN BE USED
+    ( ( ughelpers.testForResumableJs() ) ? $_.uploaderIdentifier = 'Resumable' : $_.uploaderIdentifier = 'plupload' );
 
-    $.t = ughelpers.testForResumableJs();
-    console.log( $.t );
-
-    if( $.t ) {
-        alert('resumableJS');
-    } else {
-        alert('plupload');
-    }
-    //console.log( jQuery('body') );
+    // CALLING TO INSTANTIATE THE UPLOADER OBJECT
+    $_.inituploader( $_.uploaderIdentifier );
   };
 
-  $.inituploader = function() {
+  // INSTANTIATING THE UPLOADER OBJECT METHOD
+  $_.inituploader = function( which ) {
 
+    ughelpers.testFor( 'jQuery' );
+    ughelpers.testFor( which );
+
+    // INSTANTIATING THE RIGHT UPLOADER OBJECT
+    if( typeof $_[which] === 'function' ) { $_[which](); }
   };
 
-  $.play = function() {
-    alert('play');
+  // RESUMABLE.JS OBJECT
+  $_.Resumable = function() {
+    //console.log('init');
+    //console.log( $_.defaults.Resumable );
+    $_.r = new Resumable( $_.defaults.Resumable );
+    if( jQuery( $_.defaults.drop_zone ) ) { $_.r.assignDrop( jQuery( $_.defaults.drop_zone ) ); } else { throw new Error( 'Error assigning drop zone!' ); }
+    //console.log(jQuery( $_.defaults.drop_zone ) );
+    //console.log( $_.r );
   };
 
-  $.construct();
+  $_.play = function() {
+  };
+
+  $_.construct();
 };
 
 var ug = ug({test:'a', test1 : 'b'});
