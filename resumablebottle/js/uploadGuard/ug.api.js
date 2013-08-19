@@ -2,7 +2,12 @@
 "use strict";
 
 /**
- *  ug.api.js - uploadGuard - A Wrapper & API for Upload Plugins
+ *  UploadGuard
+ *  ug.api.js - API for Upload Plugins
+ *
+ *  public methods :
+ *    .assignBrowse : equals the resumable.js method .assignBrowse(domNodes, isDirectory)
+ *    .assignDrop : equals the resumable.js method .assignDrop(domNodes)
  */
 
 var ug = function( options ) {
@@ -22,15 +27,25 @@ var ug = function( options ) {
       chunkSize : 2*1024*1024, // 2MB
       simultaneousUploads : 4,
       throttleProgressCallbacks : 1
-    },
-    drop_zone : '.drop-zone'
+    }, 
+    plupload : {
+        chunk_size : '4mb',
+        runtimes : 'flash,html5,html4',
+        urlstream_upload: true,
+        multipart : true,
+        flash_swf_url : 'js/plupload/plupload.flash.swf'
+    }
   };
+  $_.options = {}; // merged default & user parameters
 
   // CONSTRUCTOR
   $_.construct = function() {
 
+    // jQuery DEPENDENCY CHECK
+    ughelpers.testFor( 'jQuery' );
+
     // OPTIONS
-    $_.defaults = ughelpers.extend( $_.defaults, options );
+    jQuery.extend( true, $_.defaults, options );
     //console.log( $_.defaults );
 
     // TEST WHICH UPLOADER CAN BE USED
@@ -43,7 +58,6 @@ var ug = function( options ) {
   // INSTANTIATING THE UPLOADER OBJECT METHOD
   $_.inituploader = function( which ) {
 
-    ughelpers.testFor( 'jQuery' );
     ughelpers.testFor( which );
 
     // INSTANTIATING THE RIGHT UPLOADER OBJECT
@@ -52,20 +66,27 @@ var ug = function( options ) {
 
   // RESUMABLE.JS OBJECT
   $_.Resumable = function() {
-    //console.log('init');
-    //console.log( $_.defaults.Resumable );
-    $_.r = new Resumable( $_.defaults.Resumable );
-    if( jQuery( $_.defaults.drop_zone ) ) { $_.r.assignDrop( jQuery( $_.defaults.drop_zone ) ); } else { throw new Error( 'Error assigning drop zone!' ); }
-    //console.log(jQuery( $_.defaults.drop_zone ) );
-    //console.log( $_.r );
+    // ASSIGNING THE OBJECT HANDLER
+    $_.Resumable = new Resumable( $_.defaults.Resumable );
   };
 
-  $_.play = function() {
+  // PLUPLOAD OBJECT
+  $_.plupload = function() {
+    $_.plupload = new plupload.Uploader( $_.defaults.plupload );
   };
+
+  // PUBLIC METHODS
+  $_.assignDrop = function( selector ) {
+    if( typeof $_.Resumable === 'object' ) {
+      $_.Resumable.assignDrop( selector );
+    }
+  }
+
+  $_.assignBrowse = function( selector ) {
+    if( typeof $_.Resumable === 'object' ) {
+      $_.Resumable.assignBrowse( selector );
+    }
+  }
 
   $_.construct();
 };
-
-var ug = ug({test:'a', test1 : 'b'});
-//ug.play();
-console.log( ug );

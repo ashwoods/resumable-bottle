@@ -6,6 +6,7 @@
   <link rel="stylesheet" type="text/css" href="css/uploadGuard.css">
   
   <style type="text/css">
+    /*
     td{ font-family: Arial, Helvetica, sans-serif; font-size: 8pt; }
     #content {
       width: 1000px;
@@ -17,9 +18,10 @@
     #loading_area #drop_zone {
       visibility: hidden;
     }
+    */
   </style>
 
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+  <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
   <script src="js/jquery.knob.js"></script>
   <script src="js/spark-md5.min.js"></script>
   <script src="js/resumable2.js"></script>
@@ -29,6 +31,26 @@
 
   <script src="js/uploadGuard/ug.helpers.js"></script>
   <script src="js/uploadGuard/ug.api.js"></script>
+
+  <script>
+
+    var ug_options = {
+      plupload : {
+        chunk_size : '2mb',
+        browse_button : 'browsebutton',
+      },
+      a : 'A'
+    };
+
+    jQuery(document).ready(function() {
+      ug = ug( ug_options );
+      // OF COURSE YOU COULD JUST WRITE ug.assignDrop( jQuery( '#drop_zone' ) ); RESPECTIVELY ug.assignBrowse( jQuery( '#browsebutton' ) );
+      if( jQuery( '#drop_zone' ).length ) { ug.assignDrop( jQuery( '#drop_zone' ) ); } else { throw new Error( 'Error assigning drop zone!' ); }
+      if( jQuery( '#browsebutton' ).length ) { ug.assignBrowse( jQuery( '#browsebutton' ) ); } else { throw new Error( 'Error assigning the browse button!' ); }
+
+      console.log( ug );
+    });
+  </script>
 </head>
 <body>
   <div id="content">
@@ -65,6 +87,8 @@
    </div>
 
   <output id="list"></output>
+
+  <div id="testy">TEST</div>
 
 </body>
 </html>
