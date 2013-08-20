@@ -10,13 +10,16 @@ var ughelpers = {
    *  extends objects, overwrites same keys
    *  -> works like jQuery.extend() - except that it returns a new array/object instead of setting one
    */
-  extend : function( a, b ) {
-    for( var key in b ) {
-      if( b.hasOwnProperty( key ) ) {
-        a[key] = b[key];
+  extend : function( destination, source ) {
+    for( var property in source ) {
+      if( source[property] && source[property].constructor && source[property].constructor === Object ) {
+        destination[property] = destination[property] || {};
+        ughelpers.extend( destination[property], source[property] );
+      } else {
+        destination[property] = source[property];
       }
     }
-    return a;
+    return destination;
   },
   /** 
    *  detect if the browsers FileAPI is usable

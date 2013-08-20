@@ -42,11 +42,12 @@ var ug = function( options ) {
   $_.construct = function() {
 
     // jQuery DEPENDENCY CHECK
-    ughelpers.testFor( 'jQuery' );
+    //ughelpers.testFor( 'jQuery' );
 
     // OPTIONS
-    jQuery.extend( true, $_.defaults, options );
-    //console.log( $_.defaults );
+    //jQuery.extend( true, $_.defaults, options );
+    $_.options = ughelpers.extend( $_.defaults, options );
+    //console.log( $_.options );
 
     // TEST WHICH UPLOADER CAN BE USED
     ( ( ughelpers.testForResumableJs() ) ? $_.uploaderIdentifier = 'Resumable' : $_.uploaderIdentifier = 'plupload' );
@@ -67,12 +68,12 @@ var ug = function( options ) {
   // RESUMABLE.JS OBJECT
   $_.Resumable = function() {
     // ASSIGNING THE OBJECT HANDLER
-    $_.Resumable = new Resumable( $_.defaults.Resumable );
+    $_.Resumable = new Resumable( $_.options.Resumable );
   };
 
   // PLUPLOAD OBJECT
   $_.plupload = function() {
-    $_.plupload = new plupload.Uploader( $_.defaults.plupload );
+    $_.plupload = new plupload.Uploader( $_.options.plupload );
   };
 
   // PUBLIC METHODS

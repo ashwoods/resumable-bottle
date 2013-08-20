@@ -38,6 +38,10 @@
       plupload : {
         chunk_size : '2mb',
         browse_button : 'browsebutton',
+        runtimes : 'flash'
+      },
+      Resumable : {
+        simultaneousUploads : 3,
       },
       a : 'A'
     };
