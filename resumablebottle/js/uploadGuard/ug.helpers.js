@@ -31,7 +31,6 @@ var ughelpers = {
       && ( typeof( Blob )!=='undefined' ) 
       && ( typeof( FileList )!=='undefined' ) 
       && ( !!Blob.prototype.webkitSlice || !!Blob.prototype.mozSlice || !!Blob.prototype.slice || false )
-      //&& ( this.ie !== 10 ) // detect if IE 10
     ) ? true : false );
   },
   /** 

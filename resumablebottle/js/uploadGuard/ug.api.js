@@ -42,7 +42,7 @@ var ug = function( options ) {
 
     // OPTIONS
     $_.options = ughelpers.extend( $_.defaults, options );
-    console.log( $_.options );
+    //console.log( $_.options );
 
     // TEST WHICH UPLOADER CAN BE USED
     ( ( ughelpers.testForResumableJs() ) ? $_.uploaderIdentifier = 'Resumable' : $_.uploaderIdentifier = 'plupload' );
@@ -60,21 +60,26 @@ var ug = function( options ) {
     if( typeof $_[which] === 'function' ) { $_[which](); }
   };
 
-  // RESUMABLE.JS EXTERNAL CONSTRUCTOR
+  // RESUMABLE.JS
   $_.Resumable = function() {
-    //$_.Resumable = new Resumable( $_.options.Resumable ); // ASSIGNING THE OBJECT HANDLER
-    //Resumable.call( this, $_.options.Resumable );
-    //$_.uploader = $_.Resumable; // REFERENCE OBJECT
-    if( ughelpers.isObjectEmpty( $_.uploader ) ) {
-      $_.uploader = new Resumable( $_.options.Resumable ); // ASSIGNING THE OBJECT HANDLER
+
+    if( ughelpers.isObjectEmpty( $_.Resumable ) ) {
+
+      $_.Resumable = new Resumable( $_.options.Resumable ); // ASSIGNING THE OBJECT HANDLER
+      $_.uploader = $_.Resumable; // REFERENCE
     }
   };
 
-  // PLUPLOAD EXTERNAL CONSTRUCTOR
+  // PLUPLOAD
   $_.plupload = function() {
-    if( ughelpers.isObjectEmpty( $_.uploader ) ) {
-      $_.uploader = new plupload.Uploader( $_.options.plupload ); // ASSIGNING THE OBJECT HANDLER
-      $_.uploader.init();
+
+    if( ughelpers.isObjectEmpty( $_.plupload ) ) {
+
+      $_.plupload = new plupload.Uploader( $_.options.plupload ); // ASSIGNING THE OBJECT HANDLER
+      $_.plupload.init();
+      $_.uploader = $_.plupload; // REFERENCE
+
+      $_.Resumable.on = function() {}; // FIXING MISSING METHODS
     }
   };
 
@@ -96,6 +101,26 @@ var ug = function( options ) {
       $_.uploader.assignBrowse( selector );
     }
   }
+
+  /**
+   *  Wrapper for the methods 
+   *    'FilesAdded' ( Plupload )
+   *    'fileAdded' ( Resumable.js )
+   */
+  /*
+  $_.filesAdded = function() {
+    if( typeof $_.uploader === 'object' ) {
+      if( $_.uploaderIdentifier === 'Resumable' ) {
+        $_.uploader.on('fileAdded', function( file ) {
+          alert('add');
+        });
+      }
+      else if( $_.uploaderIdentifier === 'plupload' ) {
+
+      }
+    }
+  }
+  */
 
   $_.construct();
 };
