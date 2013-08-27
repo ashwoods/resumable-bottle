@@ -42,6 +42,7 @@ var ughelpers = {
    *  returns boolean
    */
   testForResumableJs : function() { 
+    return false; // FOR TESTING PURPOSES -> causing fallback -> plupload
     return ( ( typeof( FileReader ) !== 'undefined' ) && ( this.ie !== 10 ) && this.testForFileApi() );
   },
   /** 
@@ -70,6 +71,26 @@ var ughelpers = {
       console.log( 'missing ' + what );
       throw new Error( 'missing ' + what );
     }
-  })
+  }),
+  /** 
+   *  When jQuery available check for selector.
+   *  Throws an error and stops the further script execution when not found.
+   */
+  checkSelector : ( function( the_selector ) {
+    if( typeof eval( 'jQuery' ) !== 'undefined' ) { // in need of jQuery/Sizzle
+      if( jQuery( the_selector ).length ) { return true; } else { throw new Error( 'Error assigning the browse button!' ); }
+    }
+  }),
+  /**
+   *  Simple test for void objects 
+   */
+  isObjectEmpty : function( obj ) {
+    for( var prop in obj ) {
+      if( obj.hasOwnProperty( prop ) ) {
+            return false;
+      }
+    }
+    return true;
+  }
 };
 

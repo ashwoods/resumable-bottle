@@ -36,21 +36,27 @@
 
     var ug_options = {
       plupload : {
+        runtimes : 'html4',
         chunk_size : '2mb',
         browse_button : 'browsebutton',
-        runtimes : 'flash'
+        flash_swf_url : 'js/plupload/plupload.flash.swf'
       },
       Resumable : {
         simultaneousUploads : 3,
-      },
-      a : 'A'
+      }
     };
 
     jQuery(document).ready(function() {
       ug = ug( ug_options );
-      // OF COURSE YOU COULD JUST WRITE ug.assignDrop( jQuery( '#drop_zone' ) ); RESPECTIVELY ug.assignBrowse( jQuery( '#browsebutton' ) );
+
+      // ASSIGNING METHODS OVER API
+      ug.assignDrop( jQuery( '#drop_zone' ) );
+      ug.assignBrowse( jQuery( '#browsebutton' ) );
+
+      /*
       if( jQuery( '#drop_zone' ).length ) { ug.assignDrop( jQuery( '#drop_zone' ) ); } else { throw new Error( 'Error assigning drop zone!' ); }
       if( jQuery( '#browsebutton' ).length ) { ug.assignBrowse( jQuery( '#browsebutton' ) ); } else { throw new Error( 'Error assigning the browse button!' ); }
+      */
 
       console.log( ug );
     });

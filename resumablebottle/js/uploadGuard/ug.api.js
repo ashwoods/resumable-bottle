@@ -32,8 +32,7 @@ var ug = function( options ) {
         chunk_size : '4mb',
         runtimes : 'flash,html5,html4',
         urlstream_upload: true,
-        multipart : true,
-        flash_swf_url : 'js/plupload/plupload.flash.swf'
+        multipart : true
     }
   };
   $_.options = {}; // merged default & user parameters
@@ -41,11 +40,7 @@ var ug = function( options ) {
   // CONSTRUCTOR
   $_.construct = function() {
 
-    // jQuery DEPENDENCY CHECK
-    //ughelpers.testFor( 'jQuery' );
-
     // OPTIONS
-    //jQuery.extend( true, $_.defaults, options );
     $_.options = ughelpers.extend( $_.defaults, options );
     //console.log( $_.options );
 
@@ -65,27 +60,39 @@ var ug = function( options ) {
     if( typeof $_[which] === 'function' ) { $_[which](); }
   };
 
-  // RESUMABLE.JS OBJECT
+  // RESUMABLE.JS EXTERNAL CONSTRUCTOR
   $_.Resumable = function() {
-    // ASSIGNING THE OBJECT HANDLER
-    $_.Resumable = new Resumable( $_.options.Resumable );
+    //$_.Resumable = new Resumable( $_.options.Resumable ); // ASSIGNING THE OBJECT HANDLER
+    //Resumable.call( this, $_.options.Resumable );
+    //$_.uploader = $_.Resumable; // REFERENCE OBJECT
+    if( ughelpers.isObjectEmpty( $_.uploader ) ) {
+      $_.uploader = new Resumable( $_.options.Resumable ); // ASSIGNING THE OBJECT HANDLER
+    }
   };
 
-  // PLUPLOAD OBJECT
+  // PLUPLOAD EXTERNAL CONSTRUCTOR
   $_.plupload = function() {
-    $_.plupload = new plupload.Uploader( $_.options.plupload );
+    if( ughelpers.isObjectEmpty( $_.uploader ) ) {
+      $_.uploader = new plupload.Uploader( $_.options.plupload ); // ASSIGNING THE OBJECT HANDLER
+    }
   };
 
   // PUBLIC METHODS
   $_.assignDrop = function( selector ) {
-    if( typeof $_.Resumable === 'object' ) {
-      $_.Resumable.assignDrop( selector );
+
+    ughelpers.checkSelector( selector );
+
+    if( typeof $_.uploader === 'object' && $_.uploaderIdentifier === 'Resumable' ) {
+      $_.uploader.assignDrop( selector );
     }
   }
 
   $_.assignBrowse = function( selector ) {
-    if( typeof $_.Resumable === 'object' ) {
-      $_.Resumable.assignBrowse( selector );
+    
+    ughelpers.checkSelector( selector );
+
+    if( typeof $_.uploader === 'object' && $_.uploaderIdentifier === 'Resumable' ) {
+      $_.uploader.assignBrowse( selector );
     }
   }
 
