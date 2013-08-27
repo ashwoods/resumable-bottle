@@ -2,7 +2,9 @@
 "use strict";
 
 /**
- *  ug.helpers.js helper methods for uploadGuard.js
+ *  UploadGuard
+ *  ug.helpers.js - API helper methods
+ *
  */
 
 var ughelpers = {

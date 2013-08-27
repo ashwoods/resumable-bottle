@@ -37,26 +37,10 @@
   <script src="js/plupload/jquery.plupload.queue.js"></script>
 
   <script src="js/uploadGuard/ug.helpers.js"></script>
+  <script src="js/uploadGuard/ug.ui.js"></script>
   <script src="js/uploadGuard/ug.api.js"></script>
 
   <script>
-
-    // USER INTERFACE HELPERS
-    var addTableRow = function( data ) {
-
-      tr = ( ( data.uniqueIdentifier ) ? '<tr id="ug_' + data.uniqueIdentifier + '" >' : '<tr>' );
-        tr += '<td></td>';
-        tr += '<td>' + data.name + '</td>';
-        tr += '<td><input'
-          +' type="text"'
-          +' value="0" '
-          +' data-width="' + data.knob.width + '" '
-          +' data-height="' + data.knob.height + '" '
-          +' data-fgColor="' + data.knob.fgColor + '"'
-          +' class="progressbar_' + data.uniqueIdentifier + '">'
-        tr += '</td>';
-        return tr;
-    };
 
     // UPLOADGUARD OPTIONS
     var ug_options = {
@@ -86,15 +70,25 @@
           uniqueIdentifier : file.uniqueIdentifier,
           name : file.fileName,
           size : file.size,
-          type : file.file.type
+          type : file.file.type,
           knob : {
             width : 45,
             height : 45,
             fgColor : '#' + Math.floor(Math.random()*16777215).toString(16)
           }
         };
-        //console.log( file );
-        console.log( data );
+
+        // ADDING TABLE ROW WITH FILE DATA
+        jQuery('#filesdashboard tbody').append( addTableRow( data ) );
+
+        // INITIALIZING KNOB
+        progbar_id = '.progressbar_' + file.uniqueIdentifier;
+        if( jQuery.fn.knob !== undefined ) {
+            jQuery( progbar_id ).knob(); // knob init
+        }
+        else {
+            jQuery( progbar_id ).css({'width':'30px'}).after('%'); // #display % done in input field
+        }
       });
 
       // PLUPLOAD
@@ -118,17 +112,18 @@
     <div id="ouput-list"></div>
     <output id="list"></output>
 
-    <table class="" id="filedashboard" style="display:block;">
+    <table class="" id="filesdashboard" style="display:block;">
       <thead>
         <tr>
           <th data-name="original_thumbnail" data-role="thumbnail" data-upload-progress="true">Thumbnail</th>
           <th data-name="original_filename" data-role="name">Name</th>
           <th data-name="filetype" data-role="type">Filetype</th>
           <th data-name="original_filesize" data-role="size">Size</th>
-          <th data-name="created" data-role="created">created</th>
-          <th data-name="resource_uri" data-role="resource_uri">resource</th>
+          <th>Actions</th>
         </tr>
       </thead>
+      <tbody>
+      </tbody>
     </table>
 
   </div>
