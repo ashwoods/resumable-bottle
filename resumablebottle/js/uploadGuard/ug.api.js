@@ -42,7 +42,7 @@ var ug = function( options ) {
 
     // OPTIONS
     $_.options = ughelpers.extend( $_.defaults, options );
-    //console.log( $_.options );
+    console.log( $_.options );
 
     // TEST WHICH UPLOADER CAN BE USED
     ( ( ughelpers.testForResumableJs() ) ? $_.uploaderIdentifier = 'Resumable' : $_.uploaderIdentifier = 'plupload' );
@@ -74,6 +74,7 @@ var ug = function( options ) {
   $_.plupload = function() {
     if( ughelpers.isObjectEmpty( $_.uploader ) ) {
       $_.uploader = new plupload.Uploader( $_.options.plupload ); // ASSIGNING THE OBJECT HANDLER
+      $_.uploader.init();
     }
   };
 

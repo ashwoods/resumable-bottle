@@ -42,7 +42,7 @@ var ughelpers = {
    *  returns boolean
    */
   testForResumableJs : function() { 
-    return false; // FOR TESTING PURPOSES -> causing fallback -> plupload
+    //return false; // FOR TESTING PURPOSES -> causing fallback -> plupload
     return ( ( typeof( FileReader ) !== 'undefined' ) && ( this.ie !== 10 ) && this.testForFileApi() );
   },
   /** 

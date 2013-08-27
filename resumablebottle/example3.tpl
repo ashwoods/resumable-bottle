@@ -38,6 +38,7 @@
       plupload : {
         runtimes : 'html4',
         chunk_size : '2mb',
+        url : '/upload',
         browse_button : 'browsebutton',
         flash_swf_url : 'js/plupload/plupload.flash.swf'
       },
