@@ -42,7 +42,6 @@ var ug = function( options ) {
 
     // OPTIONS
     $_.options = ughelpers.extend( $_.defaults, options );
-    //console.log( $_.options );
 
     // TEST WHICH UPLOADER CAN BE USED
     ( ( ughelpers.testForResumableJs() ) ? $_.uploaderIdentifier = 'Resumable' : $_.uploaderIdentifier = 'plupload' );

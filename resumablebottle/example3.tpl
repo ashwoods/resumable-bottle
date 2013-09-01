@@ -13,19 +13,6 @@
       text-align : center;
       color : #bbb;
     }
-    /*
-    td{ font-family: Arial, Helvetica, sans-serif; font-size: 8pt; }
-    #content {
-      width: 1000px;
-      margin: 0 auto;
-    }
-    #loading_area {
-      background: url('img/waiting.gif') no-repeat center;
-    }
-    #loading_area #drop_zone {
-      visibility: hidden;
-    }
-    */
   </style>
 
   <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
@@ -44,15 +31,16 @@
 
     // UPLOADGUARD OPTIONS
     var ug_options = {
+      Resumable : {
+        simultaneousUploads : 3,
+        target : '/upload'
+      },
       plupload : {
         runtimes : 'flash',
         chunk_size : '2mb',
         url : '/upload',
         browse_button : 'browsebutton',
         flash_swf_url : 'js/plupload/plupload.flash.swf'
-      },
-      Resumable : {
-        simultaneousUploads : 3,
       }
     };
 
@@ -60,8 +48,11 @@
     jQuery(document).ready(function() {
 
       ug = ug( ug_options );
+      console.log( ug );
 
-      // RESUMABLE.JS 
+      /**
+       *  RESUMABLE.JS 
+       */
       ug.assignDrop( jQuery( '#drop_zone' ) );
       ug.assignBrowse( jQuery( '#browsebutton' ) );
 
@@ -89,14 +80,54 @@
         else {
             jQuery( progbar_id ).css({'width':'30px'}).after('%'); // #display % done in input field
         }
+
+        ug.Resumable.upload();
       });
 
-      // PLUPLOAD
+
+      ug.Resumable.on( 'fileProgress', function( file ) {
+
+          // Handle progress for both the file and the overall upload
+          jQuery( '.progressbar_' + file.uniqueIdentifier ).val( Math.floor( file.progress()*100 ) ).trigger('change');
+      });
+
+      /**
+       *  PLUPLOAD
+       */
       ug.plupload.bind( 'FilesAdded', function( up, files ) {
-        console.log( files );
+        //console.log( files );
+        jQuery.each( files, function( i, file ) {
+
+          var data = {
+            uniqueIdentifier : file.id,
+            val : {
+                name : file.name,
+                size : file.size
+            },
+            knob : {
+              width : 45,
+              height : 45,
+              fgColor : '#' + Math.floor(Math.random()*16777215).toString(16)
+            }
+          }
+          //console.log( data );
+          jQuery('#filesdashboard tbody').append( addTableRow( data ) );
+
+          // INITIALIZING KNOB
+          console.log( file.id );
+          progbar_id = '.progressbar_' + file.id;
+          if( jQuery.fn.knob !== undefined ) {
+              jQuery( progbar_id ).knob(); // knob init
+          }
+          else {
+              jQuery( progbar_id ).css({'width':'30px'}).after('%'); // #display % done in input field
+          }
+        });
       });
 
-      console.log( ug );
+      jQuery( '#upload_start' ).click( function() {
+      });
+      //console.log( ug );
     });
   </script>
 </head>
@@ -107,7 +138,7 @@
         Drop files here or <a href="#" id="browsebutton" data-browse-button="here" >click to open file browser</a>
       </div>
     </div>
-    <button type="button" id="plupload-start" style="display: none;">Upload</button> 
+    <button type="button" id="upload_start" style="">Start upload</button> 
 
     <div id="ouput-list"></div>
     <output id="list"></output>
