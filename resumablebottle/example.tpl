@@ -18,7 +18,7 @@
   <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
   <script src="js/jquery.knob.js"></script>
   <script src="js/spark-md5.min.js"></script>
-  <script src="js/resumable2.js"></script>
+  <script src="js/resumable.js"></script>
   <script src="js/plupload/plupload.full.js"></script>
   <script src="js/plupload/plupload.browserplus.js"></script>
   <script src="js/plupload/jquery.plupload.queue.js"></script>
