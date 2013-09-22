@@ -114,9 +114,9 @@ def static(path):
 def test_resumable():
     return template('example')
 
-#@app.route('/test2')
-#def test_resumable():
-    #return template('example2')
+@app.route('/uploader2')
+def test_resumable():
+    return template('example2')
 
 #@app.route('/test3')
 #def test_resumable():
