@@ -27,3 +27,16 @@ var addTableRow = function( data ) {
     return tr;
 };
 
+// Warning that files are being uploaded
+var file_added = function() {
+  window.onbeforeunload = function() {
+    return "Sie haben noch unfertige Uploads!";
+  }
+}
+
+// Reflect that all uploads are completed
+var finished_uploads = function() {
+  window.onbeforeunload = function() {
+    return null;
+  }
+}

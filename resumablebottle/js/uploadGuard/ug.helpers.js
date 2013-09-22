@@ -43,8 +43,8 @@ var ughelpers = {
    *  returns boolean
    */
   testForResumableJs : function() { 
-    //return false; // FOR TESTING PURPOSES -> causing fallback -> plupload
-    return ( ( typeof( FileReader ) !== 'undefined' ) && ( this.ie !== 10 ) && this.testForFileApi() );
+    return false; // FOR TESTING PURPOSES ONLY !!! -> causing fallback -> plupload
+    //return ( ( typeof( FileReader ) !== 'undefined' ) && ( this.ie !== 10 ) && this.testForFileApi() );
   },
   /** 
    *  Simple but effective IE detection : http://stackoverflow.com/questions/4169160/javascript-ie-detection-why-not-use-simple-conditional-comments
@@ -69,7 +69,7 @@ var ughelpers = {
    */
   testFor : ( function( what ) {
     if( typeof eval( what ) === 'undefined' ) {
-      console.log( 'missing ' + what );
+      //console.log( 'missing ' + what );
       throw new Error( 'missing ' + what );
     }
   }),

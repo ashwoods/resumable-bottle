@@ -1,92 +1,182 @@
-%#template to generate a HTML table from a list of tuples (or list of lists, or tuple of tuples or
+<!DOCTYPE html>
+<html>
+<head>
+  <title>uploadGuard</title>
 
-<html class="no-js">
-    <head>
-        <title>uploadGuard</title>
-        
-        <style type="text/css">
-        <!--
-        TD{font-family: Arial, Helvetica, sans-serif; font-size: 8pt;}
-        
-        #content {
-            width: 1000px;
-            margin: 0 auto;
-        }
-        
-        #loading_area {
-            background: url('img/waiting.gif') no-repeat center;
-        }
-        #loading_area #drop_zone {
-            visibility: hidden;
-        }
-        -->
-        </style>
-        <!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>-->
-        <!--<script src="http://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>-->
-        <script type="text/javascript" src="js/modernizr.full.min.js" charset="utf-8"></script>
-        
-        <script>
-            // setting the timeOut for fileloading
-            // a file appears to not be loadable anymore, essential files should be loaded from a different source
-            yepnope.errorTimeout = 2000;
-        
-            Modernizr.load([
-                {
-                    load : 'http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js',
-                    complete : function () { // the "complete" callback will be executed after the file downloading is completed
-                        if( ! window.jQuery ) {
-                            Modernizr.load([{
-                                load : 'js/jquery.min.js',
-                                complete : function () {
-                                }
-                            }]);
-                        }
-                    }
-                },
-                {
-                    load : 'js/uploadGuard.js'
-                }
-            ]);
-        </script>
-    </head>
-    <body>
-        <div id="content">
-            <table class="someDashboardClass" id="theTable" style="display:none;">
-                <thead>
-                    <tr>
-                        <th data-name="original_thumbnail" data-role="thumbnail" data-upload-progress="true">Thumbnail</th>
-                        <th data-name="original_filename" data-role="name">Name</th>
-                        <th data-name="filetype" data-role="type">Filetype</th>
-                        <th data-name="original_filesize" data-role="size">Size</th>
-                        <th data-name="created" data-role="created">created</th>
-                        <th data-name="resource_uri" data-role="resource_uri">resource</th>
-                        <th>Something</th>
-                    </tr>
-                    <tr>
-                        <td>Some Thumbnail</th>
-                        <td>Some Name</th>
-                        <td>Some FileType</th>
-                        <td>Some Size</th>
-                        <td>Created Sometime</th>
-                        <td>Some Resource</th>
-                    </tr>
-                </thead>
-            </table>
+  <style type="text/css">
+    #drop_zone {
+      padding : 25px;
+      border : 1px dashed #bbb;
+      -webkit-border-radius : 5px;
+         -moz-border-radius : 5px;
+              border-radius : 5px;
+      text-align : center;
+      color : #bbb;
+    }
+  </style>
 
-            <div id="loading_area">
-                <div id="drop_zone" class="drop_zones" data-drop-zone="here" data-upload="/upload" data-filecheck-path="/check" data-populate-from="/populate" >
-                    Drop files here or <a href="#" id="browsebutton" data-browse-button="here" >click to open file browser</a>
-                </div>
-                <button type="button" id="plupload-start" style="display: none;">Upload</button> 
+  <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+  <script src="js/jquery.knob.js"></script>
+  <script src="js/spark-md5.min.js"></script>
+  <script src="js/resumable2.js"></script>
+  <script src="js/plupload/plupload.full.js"></script>
+  <script src="js/plupload/plupload.browserplus.js"></script>
+  <script src="js/plupload/jquery.plupload.queue.js"></script>
 
-                <div id="drop_zone_info">
-                </div>
-                <div id="drop_zone2" class="drop_zones" data-drop-zone="here" data-upload="/upload" data-filecheck-path="/check2" >
-                    Drop files here or <a href="#" id="browsebutton2" data-browse-button="here" >click to open file browser</a>
-                </div>
-            </div>
-        </div>
+  <script src="js/uploadGuard/ug.helpers.js"></script>
+  <script src="js/uploadGuard/ug.ui.js"></script>
+  <script src="js/uploadGuard/ug.api.js"></script>
+
+  <script>
+
+    // UPLOADGUARD OPTIONS
+    var ug_options = {
+      Resumable : {
+        simultaneousUploads : 3,
+        target : '/upload'
+      },
+      plupload : {
+        runtimes : 'flash',
+        chunk_size : '2mb',
+        url : '/upload',
+        urlstream_upload : true,
+        multipart : true,
+        browse_button : 'browsebutton',
+        flash_swf_url : 'js/plupload/plupload.flash.swf'
+      }
+    };
+
+    // UPLOADGUARD INITIALIZATION MUST HAPPEN AFTER DOCREADY
+    jQuery(document).ready(function() {
+
+      ug = ug( ug_options );
+
+      /**
+       *  RESUMABLE.JS 
+       */
+      ug.assignDrop( jQuery( '#drop_zone' ) );
+      ug.assignBrowse( jQuery( '#browsebutton' ) );
+
+      ug.Resumable.on( 'fileAdded', function( file ) {
+
+        file_added(); // Warning that files are being uploaded
+
+        data = {
+          uniqueIdentifier : file.uniqueIdentifier,
+          name : file.fileName,
+          size : file.size,
+          type : file.file.type,
+          knob : {
+            width : 45,
+            height : 45,
+            fgColor : '#' + Math.floor(Math.random()*16777215).toString(16)
+          }
+        };
+
+        // ADDING TABLE ROW WITH FILE DATA
+        jQuery('#filesdashboard tbody').append( addTableRow( data ) );
+
+        // INITIALIZING KNOB
+        progbar_id = '.progressbar_' + file.uniqueIdentifier;
+        if( jQuery.fn.knob !== undefined ) {
+          jQuery( progbar_id ).knob(); // knob init
+        }
+        else {
+          jQuery( progbar_id ).css({'width':'30px'}).after('%'); // #display % done in input field
+        }
+
+        ug.Resumable.upload();
+      });
+
+
+      ug.Resumable.on( 'fileProgress', function( file ) {
+
+        // Handle progress for both the file and the overall upload
+        jQuery( '.progressbar_' + file.uniqueIdentifier ).val( Math.floor( file.progress() * 100 ) ).trigger('change');
+      });
+
+      ug.Resumable.on( 'complete', function() {
+        finished_uploads();
+      });
+
+      /**
+       *  PLUPLOAD
+       */
+      ug.plupload.bind( 'FilesAdded', function( up, files ) {
+
+        file_added(); // Warning that files are being uploaded
+
+        jQuery.each( files, function( i, file ) {
+
+          var data = {
+            uniqueIdentifier : file.id,
+            val : {
+              name : file.name,
+              size : file.size
+            },
+            knob : {
+              width : 45,
+              height : 45,
+              fgColor : '#' + Math.floor(Math.random()*16777215).toString(16)
+            }
+          }
+          jQuery('#filesdashboard tbody').append( addTableRow( data ) );
+
+          // INITIALIZING KNOB
+          progbar_id = '.progressbar_' + file.id;
+          if( jQuery.fn.knob !== undefined ) {
+              jQuery( progbar_id ).knob(); // knob init
+          }
+          else {
+              jQuery( progbar_id ).css({'width':'30px'}).after('%'); // #display % done in input field
+          }
+        });
+      });
+
+      ug.plupload.bind( 'UploadProgress', function( up, file ) {
+        jQuery( '.progressbar_' + file.id ).val( Math.floor( file.percent ) ).trigger('change');
+      });
+
+      ug.plupload.bind( 'UploadComplete', function( up, files ) {
+        finished_uploads();
+      });
+
+      // Plupload start uploading via button click
+      jQuery( '#upload_start' ).click( function(e) {
+        e.preventDefault();
+        ug.plupload.start();
+      });
+    });
+
+  </script>
+</head>
+<body>
+  <div id="content">
+    <div id="loading_area">
+      <div id="drop_zone" class="drop-zone">
+        Drop files here or <a href="#" id="browsebutton" data-browse-button="here" >click to open file browser</a>
+      </div>
+    </div>
+    <button type="button" id="upload_start" style="">Start upload</button> 
+
+    <div id="ouput-list"></div>
     <output id="list"></output>
-    
-    </body>
+
+    <table class="" id="filesdashboard" style="display:block;">
+      <thead>
+        <tr>
+          <th data-name="original_thumbnail" data-role="thumbnail" data-upload-progress="true">Thumbnail</th>
+          <th data-name="original_filename" data-role="name">Name</th>
+          <th data-name="filetype" data-role="type">Filetype</th>
+          <th data-name="original_filesize" data-role="size">Size</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+
+  </div>
+
+</body>
 </html>
